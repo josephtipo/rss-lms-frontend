@@ -1,15 +1,25 @@
-export default function Header() {
-  return (
-    <header className="bg-slate-900 text-white shadow-md">
-      <div className="mx-auto max-w-7xl px-6 py-4">
-        <h1 className="text-2xl font-bold">
-          RSS Server Dashboard
-        </h1>
+import Link from "next/link";
 
-        <p className="text-sm text-slate-300">
-          Cloud-Based Web Application • Assessment 1
-        </p>
+export default function Navbar() {
+  return (
+    <nav className="bg-slate-800 text-white">
+      <div className="mx-auto flex max-w-7xl gap-8 px-6 py-3">
+        <Link href="/" className="hover:text-blue-400">
+          Home
+        </Link>
+
+        <Link href="/feeds" className="hover:text-blue-400">
+          Feeds
+        </Link>
+
+        <Link href="/about" className="hover:text-blue-400">
+          About
+        </Link>
+
+        <Link href="/settings" className="hover:text-blue-400">
+          Settings
+        </Link>
       </div>
-    </header>
+    </nav>
   );
 }
