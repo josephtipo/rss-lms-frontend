@@ -1,4 +1,5 @@
 import { Rss } from "lucide-react";
+
 import FeedCard from "@/components/FeedCard";
 import StatCard from "@/components/StatCard";
 import { feeds } from "@/data/feeds";
@@ -6,18 +7,26 @@ import { feeds } from "@/data/feeds";
 export default function Home() {
   return (
     <>
-      {/* Welcome Section */}
-      <section className="mb-10">
-        <h1 className="mb-4 flex items-center gap-3 text-5xl font-bold">
-          <Rss className="h-10 w-10 text-blue-600" />
-          Welcome
-        </h1>
+      {/* Hero Section */}
+      <section className="mb-10 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 p-10 text-white shadow-lg">
+        <div className="flex items-center gap-4">
+          <Rss className="h-12 w-12" />
 
-        <p className="text-xl text-gray-600">
-          Welcome to the RSS Server Dashboard. This application
-          demonstrates the frontend interface for managing RSS feeds
-          that will integrate with the Learning Management System
-          (LMS) in Assessment 2.
+          <div>
+            <p className="text-sm uppercase tracking-widest text-blue-100">
+              Cloud-Based Web Application
+            </p>
+
+            <h1 className="text-4xl font-bold">
+              RSS Server Dashboard
+            </h1>
+          </div>
+        </div>
+
+        <p className="mt-6 max-w-3xl text-lg text-blue-100">
+          Monitor and manage RSS feeds for the Learning Management
+          System. This frontend demonstrates a responsive dashboard
+          that will connect to backend APIs in Assessment 2.
         </p>
       </section>
 
