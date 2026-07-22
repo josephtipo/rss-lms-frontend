@@ -21,8 +21,10 @@ export default function RootLayout({
         <Header />
         <Navbar />
 
-        <main className="flex-1 mx-auto w-full max-w-7xl p-8">
-          {children}
+        <main className="min-h-screen bg-slate-100">
+          <div className="mx-auto max-w-7xl px-6 py-8">
+            {children}
+          </div>
         </main>
 
         <Footer />

@@ -1,3 +1,4 @@
+import { Rss } from "lucide-react";
 import FeedCard from "@/components/FeedCard";
 import StatCard from "@/components/StatCard";
 import { feeds } from "@/data/feeds";
@@ -7,7 +8,8 @@ export default function Home() {
     <>
       {/* Welcome Section */}
       <section className="mb-10">
-        <h1 className="mb-4 text-5xl font-bold">
+        <h1 className="mb-4 flex items-center gap-3 text-5xl font-bold">
+          <Rss className="h-10 w-10 text-blue-600" />
           Welcome
         </h1>
 
