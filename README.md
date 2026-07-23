@@ -1,36 +1,189 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RSS Server Dashboard
 
-## Getting Started
+A modern frontend dashboard built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS** for **Assessment 1** of the **Cloud-Based Web Application** subject.
 
-First, run the development server:
+---
+
+## Project Overview
+
+The RSS Server Dashboard is a responsive web application that demonstrates modern frontend development principles using the Next.js App Router architecture.
+
+The project provides a clean dashboard interface for viewing RSS feed information through reusable React components. This assessment focuses on frontend development only; backend services, APIs, and database integration will be implemented in later assessments.
+
+---
+
+## Project Objectives
+
+The objectives of this project are to:
+
+- Develop a responsive web application using Next.js.
+- Demonstrate reusable React component design.
+- Implement page routing using the App Router.
+- Build a professional dashboard interface using Tailwind CSS.
+- Apply TypeScript for improved code quality and maintainability.
+- Prepare the application for future backend integration.
+
+---
+
+## Features
+
+### Dashboard
+
+- Dashboard overview
+- Statistics cards
+- RSS feed preview cards
+- Responsive layout
+
+### About
+
+- Project overview
+- Technology stack
+- Implemented features
+- Future enhancements
+
+### RSS Feeds
+
+- RSS feed listing
+- Dashboard summary cards
+- Reusable FeedCard components
+
+### Settings
+
+- Dashboard configuration
+- Application information
+- Planned enhancements
+
+---
+
+## Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| Next.js 16 | React Framework |
+| React | User Interface |
+| TypeScript | Type Safety |
+| Tailwind CSS | Styling |
+| ESLint | Code Quality |
+| Node.js | Runtime Environment |
+
+---
+
+## Project Structure
+
+```text
+rss-lms-frontend/
+│
+├── app/
+│   ├── about/
+│   ├── feeds/
+│   ├── settings/
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── FeedCard.tsx
+│   ├── Footer.tsx
+│   ├── Header.tsx
+│   ├── Navbar.tsx
+│   └── StatCard.tsx
+│
+├── data/
+│   └── feeds.ts
+│
+├── public/
+├── package.json
+└── README.md
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+```
+
+Install project dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser and navigate to:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Validation
 
-To learn more about Next.js, take a look at the following resources:
+The project has been successfully validated using:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+and
 
-## Deploy on Vercel
+```bash
+npm run lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Both commands complete successfully with no build or linting errors.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Assessment Scope
+
+Assessment 1 includes:
+
+- Frontend user interface
+- Responsive design
+- React component architecture
+- Navigation
+- Static RSS data
+- Tailwind CSS styling
+
+The following will be implemented in future assessments:
+
+- REST API integration
+- Live RSS feeds
+- Database connectivity
+- User authentication
+- Cloud deployment
+
+---
+
+## Future Enhancements
+
+- Live RSS feed retrieval
+- Search and filtering
+- Dark mode
+- User authentication
+- Cloud database integration
+- Personalised dashboard settings
+- API-driven content
+
+---
+
+## Author
+
+**Joseph Mondejar**
+
+Student Number: **22687842**
+
+Master of Artificial Intelligence
+
+Cloud-Based Web Application
+
+Assessment 1
