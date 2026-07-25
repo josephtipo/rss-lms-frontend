@@ -1,14 +1,16 @@
 # RSS Server Dashboard
 
-A modern frontend dashboard built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS** for **Assessment 1** of the **Cloud-Based Web Application** subject.
+A modern frontend dashboard built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS** for **Assessment 1** of the **Cloud-Based Web Application** subject at **La Trobe University**.
 
 ---
 
 ## Project Overview
 
-The RSS Server Dashboard is a responsive web application that demonstrates modern frontend development principles using the Next.js App Router architecture.
+The RSS Server Dashboard is a modern frontend web application developed using the Next.js App Router architecture.
 
-The project provides a clean dashboard interface for viewing RSS feed information through reusable React components. This assessment focuses on frontend development only; backend services, APIs, and database integration will be implemented in later assessments.
+Assessment 1 focuses on frontend design, usability, responsive layouts, reusable React components, and user interaction. The application demonstrates how RSS feed information can be presented through a clean dashboard interface before backend RSS processing is introduced in later assessments.
+
+This assessment implements the complete frontend only. Backend services, RSS feed processing, APIs, authentication, and database integration will be added in Assessment 2.
 
 ---
 
@@ -16,59 +18,77 @@ The project provides a clean dashboard interface for viewing RSS feed informatio
 
 The objectives of this project are to:
 
-- Develop a responsive web application using Next.js.
-- Demonstrate reusable React component design.
-- Implement page routing using the App Router.
-- Build a professional dashboard interface using Tailwind CSS.
-- Apply TypeScript for improved code quality and maintainability.
-- Prepare the application for future backend integration.
+- Develop a modern frontend using Next.js and React.
+- Demonstrate reusable component-based architecture.
+- Implement page routing using the Next.js App Router.
+- Apply React state management.
+- Build a professional dashboard using Tailwind CSS.
+- Implement Light and Dark themes with persistent user preferences.
+- Demonstrate interactive frontend functionality.
+- Prepare the application for future backend RSS integration.
 
 ---
 
-## Features
+# Features
 
-### Dashboard
+## Dashboard
 
 - Dashboard overview
 - Statistics cards
 - RSS feed preview cards
-- Responsive layout
+- Responsive dashboard layout
+- Professional user interface
 
-### About
+## About
 
 - Project overview
+- Student information
 - Technology stack
 - Implemented features
 - Future enhancements
 
-### RSS Feeds
+## RSS Feeds
 
 - RSS feed listing
-- Dashboard summary cards
-- Reusable FeedCard components
+- Feed summary cards
+- Reusable FeedCard component
+- Feed category badges
+- Read More links
 
-### Settings
+## Settings
 
-- Dashboard configuration
-- Application information
-- Planned enhancements
+- Light/Dark theme switching
+- Theme preference saved using localStorage
+- Application configuration
+- Dashboard information
+
+## Navigation
+
+- Header displaying the assessment title
+- Footer displaying the author's name and student number
+- Navigation bar
+- Interactive hamburger menu with animated dropdown
+- React state-based menu interaction
+- Consistent navigation across all pages
 
 ---
 
-## Technology Stack
+# Technology Stack
 
 | Technology | Purpose |
 |------------|---------|
 | Next.js 16 | React Framework |
 | React | User Interface |
 | TypeScript | Type Safety |
-| Tailwind CSS | Styling |
+| Tailwind CSS | Styling and Responsive Design |
+| React Context | Global Theme Management |
+| Local Storage | Persist User Preferences |
 | ESLint | Code Quality |
 | Node.js | Runtime Environment |
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 rss-lms-frontend/
@@ -77,6 +97,7 @@ rss-lms-frontend/
 │   ├── about/
 │   ├── feeds/
 │   ├── settings/
+│   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 │
@@ -85,19 +106,22 @@ rss-lms-frontend/
 │   ├── Footer.tsx
 │   ├── Header.tsx
 │   ├── Navbar.tsx
-│   └── StatCard.tsx
+│   ├── StatCard.tsx
+│   └── ThemeProvider.tsx
 │
 ├── data/
 │   └── feeds.ts
 │
 ├── public/
+│
 ├── package.json
+├── package-lock.json
 └── README.md
 ```
 
 ---
 
-## Installation
+# Installation
 
 Clone the repository:
 
@@ -105,19 +129,19 @@ Clone the repository:
 git clone <repository-url>
 ```
 
-Install project dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Start the development server:
+Run the development server:
 
 ```bash
 npm run dev
 ```
 
-Open your browser and navigate to:
+Open your browser:
 
 ```
 http://localhost:3000
@@ -125,9 +149,9 @@ http://localhost:3000
 
 ---
 
-## Validation
+# Validation
 
-The project has been successfully validated using:
+The application has been successfully validated using:
 
 ```bash
 npm run build
@@ -139,48 +163,94 @@ and
 npm run lint
 ```
 
-Both commands complete successfully with no build or linting errors.
+Both commands complete successfully without any build, TypeScript, or ESLint errors.
 
 ---
 
-## Assessment Scope
+# Assessment Scope
 
-Assessment 1 includes:
+Assessment 1 implements:
 
 - Frontend user interface
-- Responsive design
 - React component architecture
-- Navigation
-- Static RSS data
+- Reusable components
+- React Context state management
+- Navigation bar
+- Interactive hamburger menu
+- Header and footer
+- Home, About, Feeds and Settings pages
+- Light and Dark themes
+- Theme persistence using localStorage
+- Responsive dashboard layout
+- Static RSS feed data
 - Tailwind CSS styling
+- Next.js App Router
 
-The following will be implemented in future assessments:
+Future assessments will extend the application with:
 
-- REST API integration
-- Live RSS feeds
+- Live RSS feed integration
+- REST API services
+- Backend RSS processing
 - Database connectivity
 - User authentication
+- Cloud deployment
+- Search and filtering
+- Personalised dashboard settings
+
+---
+
+# Assessment Status
+
+Assessment 1 delivers the complete frontend implementation of the RSS Server Dashboard.
+
+The application demonstrates:
+
+- Next.js App Router architecture
+- React functional components
+- TypeScript
+- Tailwind CSS
+- React Context for global state management
+- Persistent Light/Dark theme using localStorage
+- Interactive hamburger menu with animated dropdown navigation
+- Reusable dashboard and feed components
+- Clean and maintainable component-based architecture
+- Professional frontend design suitable for future backend integration
+
+Assessment 2 will extend this project by integrating backend APIs, live RSS feeds, and persistent data storage.
+
+---
+
+# Future Enhancements
+
+The following features are planned for future assessments:
+
+- Live RSS feed retrieval
+- REST API integration
+- Backend RSS processing
+- Database connectivity
+- User authentication
+- Search and filtering
+- RSS subscription management
+- Personalised user profiles
 - Cloud deployment
 
 ---
 
-## Future Enhancements
+# Validation Summary
 
-- Live RSS feed retrieval
-- Search and filtering
-- Dark mode
-- User authentication
-- Cloud database integration
-- Personalised dashboard settings
-- API-driven content
+- ✅ Production build successful
+- ✅ ESLint validation successful
+- ✅ TypeScript validation successful
+- ✅ Responsive frontend completed
+- ✅ Ready for backend integration
 
 ---
 
-## Author
+# Author
 
 **Joseph Mondejar**
 
-Student Number: **22687842**
+**Student Number:** 22687842
 
 Master of Artificial Intelligence
 
