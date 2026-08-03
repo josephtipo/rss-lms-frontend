@@ -1,36 +1,259 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RSS Server Dashboard
 
-## Getting Started
+A modern frontend dashboard built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS** for **Assessment 1** of the **Cloud-Based Web Application** subject at **La Trobe University**.
 
-First, run the development server:
+---
+
+## Project Overview
+
+The RSS Server Dashboard is a modern frontend web application developed using the Next.js App Router architecture.
+
+Assessment 1 focuses on frontend design, usability, responsive layouts, reusable React components, and user interaction. The application demonstrates how RSS feed information can be presented through a clean dashboard interface before backend RSS processing is introduced in later assessments.
+
+This assessment implements the complete frontend only. Backend services, RSS feed processing, APIs, authentication, and database integration will be added in Assessment 2.
+
+---
+
+## Project Objectives
+
+The objectives of this project are to:
+
+- Develop a modern frontend using Next.js and React.
+- Demonstrate reusable component-based architecture.
+- Implement page routing using the Next.js App Router.
+- Apply React state management.
+- Build a professional dashboard using Tailwind CSS.
+- Implement Light and Dark themes with persistent user preferences.
+- Demonstrate interactive frontend functionality.
+- Prepare the application for future backend RSS integration.
+
+---
+
+# Features
+
+## Dashboard
+
+- Dashboard overview
+- Statistics cards
+- RSS feed preview cards
+- Responsive dashboard layout
+- Professional user interface
+
+## About
+
+- Project overview
+- Student information
+- Technology stack
+- Implemented features
+- Future enhancements
+
+## RSS Feeds
+
+- RSS feed listing
+- Feed summary cards
+- Reusable FeedCard component
+- Feed category badges
+- Read More links
+
+## Settings
+
+- Light/Dark theme switching
+- Theme preference saved using localStorage
+- Application configuration
+- Dashboard information
+
+## Navigation
+
+- Header displaying the assessment title
+- Footer displaying the author's name and student number
+- Navigation bar
+- Interactive hamburger menu with animated dropdown
+- React state-based menu interaction
+- Consistent navigation across all pages
+
+---
+
+# Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| Next.js 16 | React Framework |
+| React | User Interface |
+| TypeScript | Type Safety |
+| Tailwind CSS | Styling and Responsive Design |
+| React Context | Global Theme Management |
+| Local Storage | Persist User Preferences |
+| ESLint | Code Quality |
+| Node.js | Runtime Environment |
+
+---
+
+# Project Structure
+
+```text
+rss-lms-frontend/
+│
+├── app/
+│   ├── about/
+│   ├── feeds/
+│   ├── settings/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── FeedCard.tsx
+│   ├── Footer.tsx
+│   ├── Header.tsx
+│   ├── Navbar.tsx
+│   ├── StatCard.tsx
+│   └── ThemeProvider.tsx
+│
+├── data/
+│   └── feeds.ts
+│
+├── public/
+│
+├── package.json
+├── package-lock.json
+└── README.md
+```
+
+---
+
+# Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+# Validation
 
-To learn more about Next.js, take a look at the following resources:
+The application has been successfully validated using:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+and
 
-## Deploy on Vercel
+```bash
+npm run lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Both commands complete successfully without any build, TypeScript, or ESLint errors.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+# Assessment Scope
+
+Assessment 1 implements:
+
+- Frontend user interface
+- React component architecture
+- Reusable components
+- React Context state management
+- Navigation bar
+- Interactive hamburger menu
+- Header and footer
+- Home, About, Feeds and Settings pages
+- Light and Dark themes
+- Theme persistence using localStorage
+- Responsive dashboard layout
+- Static RSS feed data
+- Tailwind CSS styling
+- Next.js App Router
+
+Future assessments will extend the application with:
+
+- Live RSS feed integration
+- REST API services
+- Backend RSS processing
+- Database connectivity
+- User authentication
+- Cloud deployment
+- Search and filtering
+- Personalised dashboard settings
+
+---
+
+# Assessment Status
+
+Assessment 1 delivers the complete frontend implementation of the RSS Server Dashboard.
+
+The application demonstrates:
+
+- Next.js App Router architecture
+- React functional components
+- TypeScript
+- Tailwind CSS
+- React Context for global state management
+- Persistent Light/Dark theme using localStorage
+- Interactive hamburger menu with animated dropdown navigation
+- Reusable dashboard and feed components
+- Clean and maintainable component-based architecture
+- Professional frontend design suitable for future backend integration
+
+Assessment 2 will extend this project by integrating backend APIs, live RSS feeds, and persistent data storage.
+
+---
+
+# Future Enhancements
+
+The following features are planned for future assessments:
+
+- Live RSS feed retrieval
+- REST API integration
+- Backend RSS processing
+- Database connectivity
+- User authentication
+- Search and filtering
+- RSS subscription management
+- Personalised user profiles
+- Cloud deployment
+
+---
+
+# Validation Summary
+
+- ✅ Production build successful
+- ✅ ESLint validation successful
+- ✅ TypeScript validation successful
+- ✅ Responsive frontend completed
+- ✅ Ready for backend integration
+
+---
+
+# Author
+
+**Joseph Mondejar**
+
+**Student Number:** 22687842
+
+Master of Artificial Intelligence
+
+Cloud-Based Web Application
+
+Assessment 1

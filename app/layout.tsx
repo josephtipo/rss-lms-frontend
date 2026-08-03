@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "RSS Server Dashboard",
@@ -17,15 +18,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-gray-100">
-        <Header />
-        <Navbar />
+      <body className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider>
+          <Header />
+          <Navbar />
 
-        <main className="flex-1 mx-auto w-full max-w-7xl p-8">
-          {children}
-        </main>
+          <main className="min-h-screen bg-background transition-colors duration-300">
+            <div className="mx-auto max-w-7xl px-6 py-8">
+              {children}
+            </div>
+          </main>
 
-        <Footer />
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
