@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { incrementRequestCount } from "@/lib/request-counter";
 
 export async function GET() {
+  incrementRequestCount();
+
   try {
     const feeds = await prisma.feed.findMany({
       include: {
@@ -36,6 +39,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  incrementRequestCount();
+
   try {
     const body = await request.json();
 

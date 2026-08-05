@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { incrementRequestCount } from "@/lib/request-counter";
 
 type RouteContext = {
   params: Promise<{
@@ -12,6 +13,8 @@ export async function GET(
   request: Request,
   context: RouteContext
 ) {
+  incrementRequestCount();
+
   try {
     const { id } = await context.params;
     const feedId = Number(id);
@@ -75,6 +78,8 @@ export async function PUT(
   request: Request,
   context: RouteContext
 ) {
+  incrementRequestCount();
+
   try {
     const { id } = await context.params;
     const feedId = Number(id);
@@ -169,6 +174,8 @@ export async function DELETE(
   request: Request,
   context: RouteContext
 ) {
+  incrementRequestCount();
+
   try {
     const { id } = await context.params;
     const feedId = Number(id);

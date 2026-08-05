@@ -58,12 +58,15 @@ export default function Home() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {feeds.map((feed) => (
-            <FeedCard
-              key={feed.id}
-              title={feed.title}
-              category={feed.category}
-              summary={feed.summary}
-            />
+      <FeedCard
+        key={feed.id}
+        title={feed.title}
+        category={feed.category}
+        summary={feed.summary}
+        author={feed.author}
+        publishedAt={feed.publishedAt}
+        link={feed.link}
+      />
           ))}
         </div>
       </section>

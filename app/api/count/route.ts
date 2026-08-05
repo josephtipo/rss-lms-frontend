@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 
-let requestCount = 0;
+import { getRequestCount } from "@/lib/request-counter";
 
 export async function GET() {
-  requestCount += 1;
-
   return NextResponse.json(
     {
-      count: requestCount,
+      count: getRequestCount(),
       message: "Request count retrieved successfully",
       timestamp: new Date().toISOString(),
     },
