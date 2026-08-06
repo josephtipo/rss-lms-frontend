@@ -1,106 +1,160 @@
 # RSS Server Dashboard
 
-A modern frontend dashboard built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS** for **Assessment 1** of the **Cloud-Based Web Application** subject at **La Trobe University**.
+A full-stack RSS Server and RSS Client application developed for Assessment 2 of the Cloud-Based Web Application subject at La Trobe University.
+
+The project extends the Assessment 1 frontend by adding a backend API, Prisma ORM, SQLite database, operational monitoring endpoints, and Docker-based deployment.
 
 ---
 
 ## Project Overview
 
-The RSS Server Dashboard is a modern frontend web application developed using the Next.js App Router architecture.
+The RSS Server Dashboard is built using Next.js, React, TypeScript, Tailwind CSS, Prisma, SQLite, and Docker.
 
-Assessment 1 focuses on frontend design, usability, responsive layouts, reusable React components, and user interaction. The application demonstrates how RSS feed information can be presented through a clean dashboard interface before backend RSS processing is introduced in later assessments.
+The application provides:
 
-This assessment implements the complete frontend only. Backend services, RSS feed processing, APIs, authentication, and database integration will be added in Assessment 2.
+- A responsive RSS Client interface
+- Database-driven RSS feed content
+- CRUD API endpoints
+- Author and feed relationships
+- Health monitoring
+- API request counting
+- Docker-based deployment
+- Persistent SQLite storage through a Docker volume
 
----
-
-## Project Objectives
-
-The objectives of this project are to:
-
-- Develop a modern frontend using Next.js and React.
-- Demonstrate reusable component-based architecture.
-- Implement page routing using the Next.js App Router.
-- Apply React state management.
-- Build a professional dashboard using Tailwind CSS.
-- Implement Light and Dark themes with persistent user preferences.
-- Demonstrate interactive frontend functionality.
-- Prepare the application for future backend RSS integration.
+The frontend retrieves feed data from the backend API and displays it using reusable React components.
 
 ---
 
-# Features
+## Architecture
 
-## Dashboard
+```text
+Browser
+   |
+   | HTTP requests
+   v
+Next.js React Frontend
+   |
+   | fetch()
+   v
+Next.js API Route Handlers
+   |
+   | Prisma ORM
+   v
+SQLite Database
+```
 
-- Dashboard overview
-- Statistics cards
-- RSS feed preview cards
-- Responsive dashboard layout
-- Professional user interface
-
-## About
-
-- Project overview
-- Student information
-- Technology stack
-- Implemented features
-- Future enhancements
-
-## RSS Feeds
-
-- RSS feed listing
-- Feed summary cards
-- Reusable FeedCard component
-- Feed category badges
-- Read More links
-
-## Settings
-
-- Light/Dark theme switching
-- Theme preference saved using localStorage
-- Application configuration
-- Dashboard information
-
-## Navigation
-
-- Header displaying the assessment title
-- Footer displaying the author's name and student number
-- Navigation bar
-- Interactive hamburger menu with animated dropdown
-- React state-based menu interaction
-- Consistent navigation across all pages
+Docker packages the application, backend API, Prisma client, and runtime dependencies into a reproducible container.
 
 ---
 
-# Technology Stack
+## Main Features
+
+### RSS Client
+
+- Retrieves feed records from `GET /api/feeds`
+- Displays feed title, description, category, author, date, and link
+- Displays loading, empty, and error states
+- Shows live server health
+- Shows API request count
+- Supports responsive light and dark themes
+
+### Database
+
+The application uses Prisma ORM with SQLite.
+
+The database contains two related models:
+
+- `Author`
+- `Feed`
+
+One author can publish multiple feeds, while every feed belongs to one author.
+
+The schema includes:
+
+- Feed title
+- Description
+- Blog content
+- Link
+- Image URL
+- Category
+- Publication date
+- Author
+- Creation and update timestamps
+
+### CRUD API
+
+The application implements full Create, Read, Update, and Delete functionality.
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/feeds` | Retrieve all feeds |
+| POST | `/api/feeds` | Create a feed |
+| GET | `/api/feeds/[id]` | Retrieve one feed |
+| PUT | `/api/feeds/[id]` | Update a feed |
+| DELETE | `/api/feeds/[id]` | Delete a feed |
+
+### Operational Endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Check application and database health |
+| GET | `/api/count` | Return the current API request count |
+
+The request counter is stored in application memory and resets when the Node.js process or Docker container restarts.
+
+### Docker
+
+The Docker configuration:
+
+- Uses Node.js 24
+- Installs dependencies inside Linux
+- Generates Prisma Client
+- Builds the Next.js application
+- Applies Prisma migrations at container startup
+- Runs the application on port `3000`
+- Stores SQLite data in a persistent Docker volume
+
+---
+
+## Technology Stack
 
 | Technology | Purpose |
-|------------|---------|
-| Next.js 16 | React Framework |
-| React | User Interface |
-| TypeScript | Type Safety |
-| Tailwind CSS | Styling and Responsive Design |
-| React Context | Global Theme Management |
-| Local Storage | Persist User Preferences |
-| ESLint | Code Quality |
-| Node.js | Runtime Environment |
+|---|---|
+| Next.js 16 | Full-stack React framework |
+| React 19 | User interface |
+| TypeScript | Static typing |
+| Tailwind CSS | Responsive styling |
+| Prisma ORM | Database schema, migrations, and queries |
+| SQLite | Persistent relational database |
+| Docker | Reproducible application deployment |
+| React Context | Theme management |
+| localStorage | Persistent theme preference |
+| ESLint | Code quality validation |
+| Node.js 24 | JavaScript runtime |
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```text
 rss-lms-frontend/
-│
 ├── app/
+│   ├── api/
+│   │   ├── count/
+│   │   │   └── route.ts
+│   │   ├── feeds/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   └── health/
+│   │       └── route.ts
 │   ├── about/
 │   ├── feeds/
+│   │   └── page.tsx
 │   ├── settings/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
-│
 ├── components/
 │   ├── FeedCard.tsx
 │   ├── Footer.tsx
@@ -108,152 +162,239 @@ rss-lms-frontend/
 │   ├── Navbar.tsx
 │   ├── StatCard.tsx
 │   └── ThemeProvider.tsx
-│
 ├── data/
 │   └── feeds.ts
-│
+├── lib/
+│   ├── prisma.ts
+│   └── request-counter.ts
+├── prisma/
+│   ├── migrations/
+│   └── schema.prisma
 ├── public/
-│
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── next.config.ts
 ├── package.json
-├── package-lock.json
+├── prisma.config.ts
 └── README.md
 ```
 
 ---
 
-# Installation
+## Local Installation
 
-Clone the repository:
+### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/josephtipo/rss-lms-frontend.git
+cd rss-lms-frontend
 ```
 
-Install dependencies:
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-Run the development server:
+### 3. Configure the database
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### 4. Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 5. Apply database migrations
+
+```bash
+npx prisma migrate deploy
+```
+
+For local development, the following command can also be used:
+
+```bash
+npx prisma migrate dev
+```
+
+### 6. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open your browser:
+Open:
 
-```
+```text
 http://localhost:3000
 ```
 
 ---
 
-# Validation
+## Docker Deployment
 
-The application has been successfully validated using:
+### Build the Docker image
+
+```bash
+docker build -t rss-lms-app .
+```
+
+### Run the container with persistent database storage
+
+```bash
+docker run -d \
+  --name rss-lms-container \
+  -p 3000:3000 \
+  -v rss-lms-data:/app/data \
+  rss-lms-app
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+### View running containers
+
+```bash
+docker ps
+```
+
+### View application logs
+
+```bash
+docker logs rss-lms-container
+```
+
+### Open a shell inside the container
+
+```bash
+docker exec -it rss-lms-container sh
+```
+
+### Stop and remove the container
+
+```bash
+docker rm -f rss-lms-container
+```
+
+The named volume `rss-lms-data` preserves the SQLite database when the container is removed and recreated.
+
+---
+
+## API Examples
+
+### Retrieve all feeds
+
+```bash
+curl http://localhost:3000/api/feeds
+```
+
+### Retrieve one feed
+
+```bash
+curl http://localhost:3000/api/feeds/1
+```
+
+### Create a feed
+
+```bash
+curl -X POST http://localhost:3000/api/feeds \
+-H "Content-Type: application/json" \
+-d '{
+  "title": "Cloud Computing Feed",
+  "description": "A sample feed created through the API",
+  "content": "Sample RSS feed content",
+  "link": "https://example.com/cloud-feed",
+  "category": "Cloud Computing",
+  "author": {
+    "name": "Joseph Mondejar",
+    "email": "joseph@example.com"
+  }
+}'
+```
+
+### Update a feed
+
+```bash
+curl -X PUT http://localhost:3000/api/feeds/1 \
+-H "Content-Type: application/json" \
+-d '{
+  "title": "Updated Cloud Computing Feed",
+  "description": "Updated feed description",
+  "content": "Updated RSS feed content",
+  "link": "https://example.com/updated-cloud-feed",
+  "category": "Cloud Computing"
+}'
+```
+
+### Delete a feed
+
+```bash
+curl -X DELETE http://localhost:3000/api/feeds/1
+```
+
+### Check application health
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+### Check API request count
+
+```bash
+curl http://localhost:3000/api/count
+```
+
+---
+
+## Validation
+
+The following validation has been completed:
+
+- Production build completed successfully
+- TypeScript validation completed successfully
+- Prisma schema validation completed successfully
+- Prisma migration applied successfully
+- CRUD endpoints tested successfully
+- Health endpoint tested successfully
+- Request-count endpoint tested successfully
+- Docker image built successfully
+- Docker container started successfully
+- Database access confirmed inside Docker
+- SQLite persistence confirmed after container recreation
+- RSS Client confirmed to display database-driven content
+
+Run the production build with:
 
 ```bash
 npm run build
 ```
 
-and
+Run ESLint with:
 
 ```bash
 npm run lint
 ```
 
-Both commands complete successfully without any build, TypeScript, or ESLint errors.
-
 ---
 
-# Assessment Scope
+## Security and Reliability
 
-Assessment 1 implements:
+The project includes:
 
-- Frontend user interface
-- React component architecture
-- Reusable components
-- React Context state management
-- Navigation bar
-- Interactive hamburger menu
-- Header and footer
-- Home, About, Feeds and Settings pages
-- Light and Dark themes
-- Theme persistence using localStorage
-- Responsive dashboard layout
-- Static RSS feed data
-- Tailwind CSS styling
-- Next.js App Router
-
-Future assessments will extend the application with:
-
-- Live RSS feed integration
-- REST API services
-- Backend RSS processing
-- Database connectivity
-- User authentication
-- Cloud deployment
-- Search and filtering
-- Personalised dashboard settings
-
----
-
-# Assessment Status
-
-Assessment 1 delivers the complete frontend implementation of the RSS Server Dashboard.
-
-The application demonstrates:
-
-- Next.js App Router architecture
-- React functional components
-- TypeScript
-- Tailwind CSS
-- React Context for global state management
-- Persistent Light/Dark theme using localStorage
-- Interactive hamburger menu with animated dropdown navigation
-- Reusable dashboard and feed components
-- Clean and maintainable component-based architecture
-- Professional frontend design suitable for future backend integration
-
-Assessment 2 will extend this project by integrating backend APIs, live RSS feeds, and persistent data storage.
-
----
-
-# Future Enhancements
-
-The following features are planned for future assessments:
-
-- Live RSS feed retrieval
-- REST API integration
-- Backend RSS processing
-- Database connectivity
-- User authentication
-- Search and filtering
-- RSS subscription management
-- Personalised user profiles
-- Cloud deployment
-
----
-
-# Validation Summary
-
-- ✅ Production build successful
-- ✅ ESLint validation successful
-- ✅ TypeScript validation successful
-- ✅ Responsive frontend completed
-- ✅ Ready for backend integration
-
----
-
-# Author
-
-**Joseph Mondejar**
-
-**Student Number:** 22687842
-
-Master of Artificial Intelligence
-
-Cloud-Based Web Application
-
-Assessment 1
+- Environment-based database configuration
+- No credentials stored in source code
+- `.env` files excluded from Git and Docker
+- Request validation for required feed fields
+- Controlled API error responses
+- Correct HTTP status codes
+- Prisma migrations for
+```

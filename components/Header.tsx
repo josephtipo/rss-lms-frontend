@@ -7,7 +7,7 @@ export default function Header() {
         </h1>
 
         <p className="text-sm text-slate-600 dark:text-slate-300">
-          Cloud-Based Web Application • Assessment 1
+          Cloud-Based Web Application • Assessment 2
         </p>
       </div>
     </header>
