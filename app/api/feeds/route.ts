@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { incrementRequestCount } from "@/lib/request-counter";
+import { recordRequest } from "@/lib/request-logger";
 
-export async function GET() {
+export async function GET(request: Request) {
   incrementRequestCount();
 
   try {
@@ -16,6 +17,11 @@ export async function GET() {
       },
     });
 
+    await recordRequest({
+      request,
+      statusCode: 200,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -25,6 +31,11 @@ export async function GET() {
     );
   } catch (error) {
     console.error("Failed to retrieve feeds:", error);
+
+    await recordRequest({
+      request,
+      statusCode: 500,
+    });
 
     return NextResponse.json(
       {
@@ -51,6 +62,11 @@ export async function POST(request: Request) {
       !body.author?.name ||
       !body.author?.email
     ) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -91,6 +107,12 @@ export async function POST(request: Request) {
       },
     });
 
+    await recordRequest({
+      request,
+      statusCode: 201,
+      feedId: feed.id,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -100,6 +122,11 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Failed to create feed:", error);
+
+    await recordRequest({
+      request,
+      statusCode: 500,
+    });
 
     return NextResponse.json(
       {
