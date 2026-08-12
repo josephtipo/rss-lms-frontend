@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { incrementRequestCount } from "@/lib/request-counter";
+import { recordRequest } from "@/lib/request-logger";
 
 type RouteContext = {
   params: Promise<{
@@ -20,6 +21,11 @@ export async function GET(
     const feedId = Number(id);
 
     if (!Number.isInteger(feedId) || feedId <= 0) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -41,6 +47,11 @@ export async function GET(
     });
 
     if (!feed) {
+      await recordRequest({
+        request,
+        statusCode: 404,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -52,6 +63,12 @@ export async function GET(
       );
     }
 
+    await recordRequest({
+      request,
+      statusCode: 200,
+      feedId,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -61,6 +78,11 @@ export async function GET(
     );
   } catch (error) {
     console.error("Failed to retrieve feed:", error);
+
+    await recordRequest({
+      request,
+      statusCode: 500,
+    });
 
     return NextResponse.json(
       {
@@ -85,6 +107,11 @@ export async function PUT(
     const feedId = Number(id);
 
     if (!Number.isInteger(feedId) || feedId <= 0) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -99,6 +126,11 @@ export async function PUT(
     const body = await request.json();
 
     if (!body.title || !body.description || !body.link) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -117,6 +149,11 @@ export async function PUT(
     });
 
     if (!existingFeed) {
+      await recordRequest({
+        request,
+        statusCode: 404,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -148,6 +185,12 @@ export async function PUT(
       },
     });
 
+    await recordRequest({
+      request,
+      statusCode: 200,
+      feedId,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -157,6 +200,11 @@ export async function PUT(
     );
   } catch (error) {
     console.error("Failed to update feed:", error);
+
+    await recordRequest({
+      request,
+      statusCode: 500,
+    });
 
     return NextResponse.json(
       {
@@ -181,6 +229,11 @@ export async function DELETE(
     const feedId = Number(id);
 
     if (!Number.isInteger(feedId) || feedId <= 0) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -199,6 +252,11 @@ export async function DELETE(
     });
 
     if (!existingFeed) {
+      await recordRequest({
+        request,
+        statusCode: 404,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -216,6 +274,12 @@ export async function DELETE(
       },
     });
 
+    // Do not store feedId here because the feed has already been deleted.
+    await recordRequest({
+      request,
+      statusCode: 200,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -225,6 +289,11 @@ export async function DELETE(
     );
   } catch (error) {
     console.error("Failed to delete feed:", error);
+
+    await recordRequest({
+      request,
+      statusCode: 500,
+    });
 
     return NextResponse.json(
       {
