@@ -24,6 +24,7 @@ model Feed {
   link        String
   imageUrl    String?
   category    String?
+  status      String   @default("ACTIVE")
   publishedAt DateTime @default(now())
 
   authorId Int

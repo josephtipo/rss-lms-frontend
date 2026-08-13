@@ -10,6 +10,8 @@ type RouteContext = {
   }>;
 };
 
+const allowedStatuses = ["ACTIVE", "WARNING", "ERROR"];
+
 export async function GET(
   request: Request,
   context: RouteContext
@@ -129,6 +131,7 @@ export async function PUT(
       await recordRequest({
         request,
         statusCode: 400,
+        feedId,
       });
 
       return NextResponse.json(
@@ -165,6 +168,30 @@ export async function PUT(
       );
     }
 
+    const requestedStatus =
+      typeof body.status === "string"
+        ? body.status.toUpperCase()
+        : existingFeed.status;
+
+    if (!allowedStatuses.includes(requestedStatus)) {
+      await recordRequest({
+        request,
+        statusCode: 400,
+        feedId,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message:
+              "status must be ACTIVE, WARNING or ERROR",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
     const updatedFeed = await prisma.feed.update({
       where: {
         id: feedId,
@@ -176,6 +203,7 @@ export async function PUT(
         link: body.link,
         imageUrl: body.imageUrl ?? null,
         category: body.category ?? null,
+        status: requestedStatus,
         publishedAt: body.publishedAt
           ? new Date(body.publishedAt)
           : existingFeed.publishedAt,
@@ -274,7 +302,8 @@ export async function DELETE(
       },
     });
 
-    // Do not store feedId here because the feed has already been deleted.
+    // The feed has already been deleted, so do not store
+    // the deleted feed ID as a foreign-key reference.
     await recordRequest({
       request,
       statusCode: 200,

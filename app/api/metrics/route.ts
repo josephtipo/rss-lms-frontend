@@ -59,6 +59,7 @@ export async function GET() {
           id: true,
           title: true,
           category: true,
+          status: true,
         },
       }),
 
@@ -92,6 +93,7 @@ export async function GET() {
         feedId: item.feedId,
         title: feed?.title ?? "Unknown or deleted feed",
         category: feed?.category ?? null,
+        status: feed?.status ?? null,
         requests: item._count.id,
       };
     });
@@ -100,6 +102,22 @@ export async function GET() {
       clientId: item.clientId,
       requests: item._count.id,
     }));
+
+    const feedStatusSummary = {
+      active: feeds.filter(
+        (feed) => feed.status === "ACTIVE"
+      ).length,
+      warning: feeds.filter(
+        (feed) => feed.status === "WARNING"
+      ).length,
+      error: feeds.filter(
+        (feed) => feed.status === "ERROR"
+      ).length,
+      unknown: feeds.filter(
+        (feed) =>
+          !["ACTIVE", "WARNING", "ERROR"].includes(feed.status)
+      ).length,
+    };
 
     const uniqueClients = requestsByClient.length;
     const successfulRequests = totalRequests - errorRequests;
@@ -126,6 +144,7 @@ export async function GET() {
             errorRequests,
             successRate,
           },
+          feedStatusSummary,
           requestsPerFeed,
           requestsPerClient,
           recentRequests,

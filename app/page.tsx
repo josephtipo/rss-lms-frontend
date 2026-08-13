@@ -20,10 +20,18 @@ type MetricsSummary = {
   successRate: number;
 };
 
+type FeedStatusSummary = {
+  active: number;
+  warning: number;
+  error: number;
+  unknown: number;
+};
+
 type FeedMetric = {
   feedId: number | null;
   title: string;
   category: string | null;
+  status: string | null;
   requests: number;
 };
 
@@ -50,6 +58,7 @@ type MetricsResponse = {
   success: boolean;
   data?: {
     summary: MetricsSummary;
+    feedStatusSummary: FeedStatusSummary;
     requestsPerFeed: FeedMetric[];
     requestsPerClient: ClientMetric[];
     recentRequests: RecentRequest[];
@@ -130,16 +139,22 @@ export default function Home() {
   }, [loadDashboard]);
 
   const summary = metrics?.summary;
+  const feedStatusSummary = metrics?.feedStatusSummary;
 
   const hasAlerts =
     !summary ||
+    !feedStatusSummary ||
     serverStatus === "Offline" ||
     summary.errorRequests > 0 ||
     summary.totalFeeds === 0 ||
-    summary.successRate < 95;
+    summary.successRate < 95 ||
+    feedStatusSummary.warning > 0 ||
+    feedStatusSummary.error > 0 ||
+    feedStatusSummary.unknown > 0;
 
   return (
     <div className="space-y-10">
+      {/* Hero */}
       <section className="rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 p-10 text-white shadow-lg">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div>
@@ -181,12 +196,14 @@ export default function Home() {
         )}
       </section>
 
+      {/* Loading */}
       {isLoading && (
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           Loading operational metrics...
         </div>
       )}
 
+      {/* Dashboard error */}
       {!isLoading && errorMessage && (
         <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           <AlertTriangle className="mt-1 h-5 w-5 shrink-0" />
@@ -201,236 +218,340 @@ export default function Home() {
         </div>
       )}
 
-      {!isLoading && metrics && summary && (
-        <>
-          <section>
-            <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
-              Operational Summary
-            </h2>
+      {!isLoading &&
+        metrics &&
+        summary &&
+        feedStatusSummary && (
+          <>
+            {/* Operational summary */}
+            <section>
+              <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+                Operational Summary
+              </h2>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard
-                title="Total Requests"
-                value={summary.totalRequests.toString()}
-              />
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Total Requests"
+                  value={summary.totalRequests.toString()}
+                />
 
-              <StatCard
-                title="RSS Feeds"
-                value={summary.totalFeeds.toString()}
-              />
+                <StatCard
+                  title="RSS Feeds"
+                  value={summary.totalFeeds.toString()}
+                />
 
-              <StatCard
-                title="Unique Clients"
-                value={summary.uniqueClients.toString()}
-              />
+                <StatCard
+                  title="Unique Clients"
+                  value={summary.uniqueClients.toString()}
+                />
 
-              <StatCard
-                title="Success Rate"
-                value={`${summary.successRate}%`}
-              />
-            </div>
-          </section>
+                <StatCard
+                  title="Success Rate"
+                  value={`${summary.successRate}%`}
+                />
+              </div>
+            </section>
 
-          <section>
-            <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
-              System Health
-            </h2>
+            {/* System health */}
+            <section>
+              <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+                System Health
+              </h2>
 
-            {!hasAlerts ? (
-              <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-6 text-green-800 shadow-sm dark:border-green-900 dark:bg-green-950 dark:text-green-300">
-                <CheckCircle2 className="mt-1 h-6 w-6 shrink-0" />
+              {!hasAlerts ? (
+                <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-6 text-green-800 shadow-sm dark:border-green-900 dark:bg-green-950 dark:text-green-300">
+                  <CheckCircle2 className="mt-1 h-6 w-6 shrink-0" />
 
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    All systems operational
-                  </h3>
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      All systems operational
+                    </h3>
 
-                  <p>
-                    The RSS server is online and no request
-                    errors are currently recorded.
+                    <p>
+                      The RSS server is online, all feeds are
+                      active and no request errors are currently
+                      recorded.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {serverStatus === "Offline" && (
+                    <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      RSS server health check is failing.
+                    </div>
+                  )}
+
+                  {summary.totalFeeds === 0 && (
+                    <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      No RSS feeds are currently stored.
+                    </div>
+                  )}
+
+                  {summary.errorRequests > 0 && (
+                    <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      {summary.errorRequests} failed request
+                      {summary.errorRequests === 1 ? "" : "s"}{" "}
+                      recorded.
+                    </div>
+                  )}
+
+                  {summary.successRate < 95 && (
+                    <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      Request success rate has fallen below the
+                      95% operational threshold.
+                    </div>
+                  )}
+
+                  {feedStatusSummary.warning > 0 && (
+                    <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+
+                      <span>
+                        {feedStatusSummary.warning} RSS feed
+                        {feedStatusSummary.warning === 1
+                          ? " is"
+                          : "s are"}{" "}
+                        in a warning state.
+                      </span>
+                    </div>
+                  )}
+
+                  {feedStatusSummary.error > 0 && (
+                    <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+
+                      <span>
+                        {feedStatusSummary.error} RSS feed
+                        {feedStatusSummary.error === 1
+                          ? " is"
+                          : "s are"}{" "}
+                        in an error state.
+                      </span>
+                    </div>
+                  )}
+
+                  {feedStatusSummary.unknown > 0 && (
+                    <div className="flex gap-3 rounded-xl border border-slate-300 bg-slate-100 p-5 text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+
+                      <span>
+                        {feedStatusSummary.unknown} RSS feed
+                        {feedStatusSummary.unknown === 1
+                          ? " has"
+                          : "s have"}{" "}
+                        an unrecognised status.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* Feed status */}
+            <section>
+              <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+                Feed Status
+              </h2>
+
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl border border-green-200 bg-green-50 p-6 shadow-sm dark:border-green-900 dark:bg-green-950">
+                  <p className="text-sm font-medium uppercase tracking-wide text-green-700 dark:text-green-300">
+                    Active
+                  </p>
+
+                  <p className="mt-2 text-3xl font-bold text-green-900 dark:text-green-100">
+                    {feedStatusSummary.active}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm dark:border-amber-900 dark:bg-amber-950">
+                  <p className="text-sm font-medium uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                    Warning
+                  </p>
+
+                  <p className="mt-2 text-3xl font-bold text-amber-900 dark:text-amber-100">
+                    {feedStatusSummary.warning}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-red-200 bg-red-50 p-6 shadow-sm dark:border-red-900 dark:bg-red-950">
+                  <p className="text-sm font-medium uppercase tracking-wide text-red-700 dark:text-red-300">
+                    Error
+                  </p>
+
+                  <p className="mt-2 text-3xl font-bold text-red-900 dark:text-red-100">
+                    {feedStatusSummary.error}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                  <p className="text-sm font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    Unknown
+                  </p>
+
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+                    {feedStatusSummary.unknown}
                   </p>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {serverStatus === "Offline" && (
-                  <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-                    <AlertTriangle className="h-5 w-5 shrink-0" />
-                    RSS server health check is failing.
-                  </div>
-                )}
+            </section>
 
-                {summary.totalFeeds === 0 && (
-                  <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
-                    <AlertTriangle className="h-5 w-5 shrink-0" />
-                    No RSS feeds are currently stored.
-                  </div>
-                )}
+            {/* Feed and client request metrics */}
+            <section className="grid gap-8 lg:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <h2 className="mb-5 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+                  <Rss className="h-5 w-5" />
+                  Requests per Feed
+                </h2>
 
-                {summary.errorRequests > 0 && (
-                  <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
-                    <AlertTriangle className="h-5 w-5 shrink-0" />
-                    {summary.errorRequests} failed request
-                    {summary.errorRequests === 1 ? "" : "s"}{" "}
+                {metrics.requestsPerFeed.length === 0 ? (
+                  <p className="text-slate-600 dark:text-slate-300">
+                    No feed-specific requests have been
                     recorded.
-                  </div>
-                )}
-
-                {summary.successRate < 95 && (
-                  <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
-                    <AlertTriangle className="h-5 w-5 shrink-0" />
-                    Request success rate has fallen below the
-                    95% operational threshold.
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section className="grid gap-8 lg:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <h2 className="mb-5 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
-                <Rss className="h-5 w-5" />
-                Requests per Feed
-              </h2>
-
-              {metrics.requestsPerFeed.length === 0 ? (
-                <p className="text-slate-600 dark:text-slate-300">
-                  No feed-specific requests have been recorded.
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {metrics.requestsPerFeed.map((feed) => (
-                    <div
-                      key={`${feed.feedId}-${feed.title}`}
-                      className="flex items-center justify-between border-b border-slate-100 pb-3 last:border-0 dark:border-slate-700"
-                    >
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
-                          {feed.title}
-                        </p>
-
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                          {feed.category ?? "Uncategorised"}
-                        </p>
-                      </div>
-
-                      <span className="rounded-full bg-blue-100 px-3 py-1 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                        {feed.requests}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-              <h2 className="mb-5 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
-                <Activity className="h-5 w-5" />
-                Requests per Client
-              </h2>
-
-              {metrics.requestsPerClient.length === 0 ? (
-                <p className="text-slate-600 dark:text-slate-300">
-                  No client requests have been recorded.
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {metrics.requestsPerClient.map((client) => (
-                    <div
-                      key={client.clientId}
-                      className="flex items-center justify-between border-b border-slate-100 pb-3 last:border-0 dark:border-slate-700"
-                    >
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        {client.clientId}
-                      </span>
-
-                      <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                        {client.requests}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
-              Recent Request Activity
-            </h2>
-
-            {metrics.recentRequests.length === 0 ? (
-              <p className="text-slate-600 dark:text-slate-300">
-                No requests have been recorded.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-sm uppercase text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                      <th className="px-3 py-3">
-                        Client
-                      </th>
-                      <th className="px-3 py-3">
-                        Method
-                      </th>
-                      <th className="px-3 py-3">
-                        Endpoint
-                      </th>
-                      <th className="px-3 py-3">
-                        Status
-                      </th>
-                      <th className="px-3 py-3">
-                        Time
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {metrics.recentRequests.map((request) => (
-                      <tr
-                        key={request.id}
-                        className="border-b border-slate-100 last:border-0 dark:border-slate-700"
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {metrics.requestsPerFeed.map((feed) => (
+                      <div
+                        key={`${feed.feedId}-${feed.title}`}
+                        className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 dark:border-slate-700"
                       >
-                        <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
-                          {request.clientId}
-                        </td>
+                        <div>
+                          <p className="font-medium text-slate-900 dark:text-white">
+                            {feed.title}
+                          </p>
 
-                        <td className="px-3 py-3 font-medium text-slate-700 dark:text-slate-200">
-                          {request.method}
-                        </td>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {feed.category ?? "Uncategorised"}
+                          </p>
 
-                        <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
-                          {request.endpoint}
-                        </td>
-
-                        <td className="px-3 py-3">
                           <span
-                            className={`rounded-full px-3 py-1 text-sm font-semibold ${
-                              request.statusCode >= 400
-                                ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-                                : "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
+                            className={`mt-2 inline-block rounded-full px-2 py-1 text-xs font-semibold ${
+                              feed.status === "ACTIVE"
+                                ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
+                                : feed.status === "WARNING"
+                                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                                  : feed.status === "ERROR"
+                                    ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                                    : "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
                             }`}
                           >
-                            {request.statusCode}
+                            {feed.status ?? "UNKNOWN"}
                           </span>
-                        </td>
+                        </div>
 
-                        <td className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
-                          {new Date(
-                            request.createdAt
-                          ).toLocaleTimeString()}
-                        </td>
-                      </tr>
+                        <span className="rounded-full bg-blue-100 px-3 py-1 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                          {feed.requests}
+                        </span>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                )}
               </div>
-            )}
-          </section>
-        </>
-      )}
+
+              <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <h2 className="mb-5 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+                  <Activity className="h-5 w-5" />
+                  Requests per Client
+                </h2>
+
+                {metrics.requestsPerClient.length === 0 ? (
+                  <p className="text-slate-600 dark:text-slate-300">
+                    No client requests have been recorded.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {metrics.requestsPerClient.map((client) => (
+                      <div
+                        key={client.clientId}
+                        className="flex items-center justify-between border-b border-slate-100 pb-3 last:border-0 dark:border-slate-700"
+                      >
+                        <span className="font-medium text-slate-900 dark:text-white">
+                          {client.clientId}
+                        </span>
+
+                        <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                          {client.requests}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Recent requests */}
+            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
+                Recent Request Activity
+              </h2>
+
+              {metrics.recentRequests.length === 0 ? (
+                <p className="text-slate-600 dark:text-slate-300">
+                  No requests have been recorded.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-sm uppercase text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                        <th className="px-3 py-3">Client</th>
+                        <th className="px-3 py-3">Method</th>
+                        <th className="px-3 py-3">Endpoint</th>
+                        <th className="px-3 py-3">Status</th>
+                        <th className="px-3 py-3">Time</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {metrics.recentRequests.map((request) => (
+                        <tr
+                          key={request.id}
+                          className="border-b border-slate-100 last:border-0 dark:border-slate-700"
+                        >
+                          <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
+                            {request.clientId}
+                          </td>
+
+                          <td className="px-3 py-3 font-medium text-slate-700 dark:text-slate-200">
+                            {request.method}
+                          </td>
+
+                          <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
+                            {request.endpoint}
+                          </td>
+
+                          <td className="px-3 py-3">
+                            <span
+                              className={`rounded-full px-3 py-1 text-sm font-semibold ${
+                                request.statusCode >= 400
+                                  ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                                  : "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
+                              }`}
+                            >
+                              {request.statusCode}
+                            </span>
+                          </td>
+
+                          <td className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
+                            {new Date(
+                              request.createdAt
+                            ).toLocaleTimeString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </>
+        )}
     </div>
   );
 }
