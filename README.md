@@ -5,310 +5,170 @@
 
 **Student:** Joseph Mondejar  
 **Student ID:** 22687842  
-**University:** La Trobe University
+**La Trobe University**
 
----
+## Overview
 
-## Project Overview
+The RSS Server Dashboard is a full-stack Next.js application developed progressively across Assessments 1, 2 and 3.
 
-The RSS Server Dashboard is a full-stack web application developed progressively across Assessments 1, 2 and 3 of CSE5006 Cloud-Based Web Application.
+Assessment 1 established the frontend and usability layer. Assessment 2 added the backend API, Prisma ORM, SQLite persistence and Docker execution. Assessment 3 extends the application with operational reporting, persistent request telemetry, feed-status monitoring, observability, automated testing, load testing and accessibility evaluation.
 
-The project simulates an RSS Server that stores and provides RSS-style content to an RSS Client and supports the broader LMS project use case.
-
-Assessment 1 established the frontend design and usability layer. Assessment 2 introduced the backend API, database persistence, Prisma ORM and Docker execution. Assessment 3 extends the same project with a data-driven operational dashboard, persistent request telemetry, health monitoring, observability, automated end-to-end testing, load testing and accessibility evaluation.
-
-The Assessment 3 implementation demonstrates that the application can not only process and store data, but can also report on its own operational state and provide evidence that it is functioning correctly.
-
----
+The application demonstrates how an RSS Server can store, process, monitor and present data in a meaningful operational format.
 
 ## Key Features
 
-The completed application includes:
-
-- Responsive RSS Client interface
-- Database-driven RSS feed content
-- Feed and author persistence
-- Full CRUD API for RSS feeds
-- Prisma ORM with SQLite
+- Responsive RSS Client
+- Database-backed RSS feeds
+- Author and feed relationships
+- Full feed CRUD API
 - Persistent request telemetry
-- Request metrics by feed
-- Request metrics by client
-- Unique client reporting
-- Total request reporting
-- Success and error reporting
-- Application and database health checks
 - Operational dashboard
-- Automatic dashboard refresh
-- Warning and status indicators
+- Total request reporting
+- Requests per feed
+- Requests per client
+- Unique client reporting
+- Feed-status summaries
+- Health monitoring
+- Warning and error indicators
 - OpenTelemetry instrumentation
-- OpenTelemetry Collector
-- Jaeger tracing
-- Zipkin tracing
+- Jaeger and Zipkin tracing
 - Prometheus metrics
 - Playwright end-to-end testing
 - Apache JMeter staged load testing
-- Lighthouse accessibility and quality testing
-- Docker application deployment
-- Docker Compose observability stack
-- Persistent SQLite storage using Docker volumes
-- Git feature-branch development workflow
+- Lighthouse accessibility testing
+- Docker-based execution
 
 ---
 
-# Architecture
+## Architecture
 
 ```text
-                          ┌────────────────────────┐
-                          │        Browser         │
-                          │ RSS Client / Dashboard │
-                          └────────────┬───────────┘
-                                       │
-                                       │ HTTP
-                                       ▼
-                          ┌────────────────────────┐
-                          │        Next.js         │
-                          │ Frontend + API Routes  │
-                          └────────┬───────┬───────┘
-                                   │       │
-                        Prisma ORM │       │ OpenTelemetry
-                                   │       │
-                                   ▼       ▼
-                         ┌─────────────┐   ┌──────────────────┐
-                         │   SQLite    │   │  OTel Collector  │
-                         │             │   └────────┬─────────┘
-                         │ Author      │            │
-                         │ Feed        │      ┌─────┼──────┐
-                         │ RequestLog  │      │     │      │
-                         └──────┬──────┘      ▼     ▼      ▼
-                                │          Jaeger Zipkin Prometheus
-                                │
-                                ▼
-                          /api/metrics
-                                │
-                                ▼
-                      Operations Dashboard
+                         Browser
+                            |
+                            | HTTP
+                            v
+                +-----------------------+
+                |       Next.js         |
+                | Frontend + API Routes |
+                +-----------+-----------+
+                            |
+                +-----------+-----------+
+                |                       |
+                | Prisma ORM            | OpenTelemetry
+                v                       v
+        +---------------+       +------------------+
+        |    SQLite     |       | OTel Collector   |
+        |---------------|       +--------+---------+
+        | Author        |                |
+        | Feed          |          +-----+-----+
+        | RequestLog    |          |     |     |
+        +-------+-------+          v     v     v
+                |              Jaeger Zipkin Prometheus
+                |
+                v
+           /api/metrics
+                |
+                v
+      RSS Operations Dashboard
 ```
 
-The architecture contains two complementary forms of observability.
+The project uses two complementary monitoring approaches.
 
-### Application-level telemetry
+**Application telemetry** is persisted in SQLite through the `RequestLog` model and reported through `/api/metrics`.
 
-Requests are persisted through Prisma in the `RequestLog` database model. The `/api/metrics` endpoint aggregates this information and provides it to the operational dashboard.
-
-### Technical observability
-
-The Next.js application is instrumented with OpenTelemetry. Telemetry is sent using OTLP to the OpenTelemetry Collector and then exported to Jaeger, Zipkin and Prometheus.
+**Technical observability** is provided through OpenTelemetry, the OpenTelemetry Collector, Jaeger, Zipkin and Prometheus.
 
 ---
 
-# Request and Data Flow
-
-A typical RSS Client request follows this sequence:
-
-```text
-Browser / Client
-      |
-      | HTTP request
-      v
-Next.js API Route
-      |
-      +------> Request validation
-      |
-      +------> Prisma ORM
-      |             |
-      |             v
-      |          SQLite
-      |
-      +------> Request telemetry
-                    |
-                    v
-                RequestLog
-                    |
-                    v
-               /api/metrics
-                    |
-                    v
-          Operations Dashboard
-```
-
-For an individual feed request:
-
-```text
-Client
-   |
-   | GET /api/feeds/1
-   v
-Next.js API
-   |
-   +----> Prisma retrieves Feed + Author
-   |
-   +----> recordRequest()
-              |
-              v
-          RequestLog
-              |
-              v
-          /api/metrics
-              |
-              v
-      Operations Dashboard
-```
-
-This allows the application to provide both RSS content and operational information about how that content is being accessed.
-
----
-
-# Technology Stack
+## Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| Next.js 16.2.10 | Full-stack React web framework |
-| React | Component-based frontend |
+| Next.js 16.2.10 | Full-stack application framework |
+| React | Frontend user interface |
 | TypeScript | Static typing |
-| Tailwind CSS | Responsive user interface styling |
-| Prisma ORM 7.9.1 | Database schema, migrations and queries |
-| SQLite | Local relational database |
-| better-sqlite3 | SQLite adapter used by Prisma |
+| Tailwind CSS | Responsive styling |
+| Prisma ORM 7.9.1 | Database modelling and access |
+| SQLite | Local relational persistence |
 | Node.js 24 | JavaScript runtime |
-| Docker | Application containerisation |
-| Docker Compose | Local observability environment |
+| Docker | Containerisation |
+| Docker Compose | Observability stack |
 | OpenTelemetry | Application instrumentation |
-| OpenTelemetry Collector | Telemetry receiving, processing and exporting |
-| Jaeger | Distributed trace visualisation |
-| Zipkin | Distributed trace visualisation |
-| Prometheus | Metrics collection and querying |
-| Playwright | End-to-end application testing |
-| Apache JMeter 5.6.3 | Load and performance testing |
-| Lighthouse | Accessibility and web quality auditing |
-| ESLint | Static code-quality checking |
+| Jaeger | Trace visualisation |
+| Zipkin | Trace visualisation |
+| Prometheus | Metrics collection |
+| Playwright | End-to-end testing |
+| Apache JMeter 5.6.3 | Load testing |
+| Lighthouse | Accessibility and quality auditing |
 
 ---
 
-# Assessment Progression
+## Assessment Progression
 
-## Assessment 1
+### Assessment 1
 
-Assessment 1 concentrated on frontend design and usability.
+Assessment 1 focused on frontend design and usability.
 
-Implemented functionality included:
+Implemented:
 
 - Responsive React interface
-- Navigation bar
-- Header and footer
-- Home page
-- About page
-- Feeds page
-- Settings page
-- Reusable React components
-- Hamburger navigation
-- Light theme
-- Dark theme
-- Theme persistence using local storage
-- Static demonstration feed information
+- Home, About, Feeds and Settings pages
+- Reusable components
+- Responsive navigation
+- Light and dark themes
+- Theme persistence
+- Static sample RSS content
 
----
+### Assessment 2
 
-## Assessment 2
+Assessment 2 added the application backend.
 
-Assessment 2 extended the application into a full-stack system.
-
-Implemented functionality included:
+Implemented:
 
 - Next.js API Route Handlers
 - Prisma ORM
 - SQLite database
-- Author database model
-- Feed database model
-- Author-to-feed relationship
-- Feed CRUD operations
+- `Author` and `Feed` models
+- Full feed CRUD API
 - Database-driven RSS Client
 - Health endpoint
 - Request counter
 - Docker image
-- Docker application execution
-- Persistent SQLite Docker volume
+- Persistent Docker volume
 
----
+### Assessment 3
 
-## Assessment 3
+Assessment 3 adds reporting, monitoring and testing.
 
-Assessment 3 introduces the data, reporting, observability and testing layer.
+Implemented:
 
-Implemented functionality includes:
-
-- Persistent `RequestLog` model
-- Persistent request logging
-- Operational metrics API
-- Data-driven dashboard
-- Total request reporting
-- RSS feed count reporting
-- Unique client reporting
+- `RequestLog` telemetry model
+- Persistent request reporting
+- Operations dashboard
 - Requests per feed
 - Requests per client
-- Successful request count
-- Error request count
-- Request success rate
-- Recent request activity
-- Application health monitoring
-- Database health monitoring
-- Operational warning indicators
-- OpenTelemetry instrumentation
-- OpenTelemetry Collector
+- Unique client reporting
+- Feed-status reporting
+- Health and warning indicators
+- OpenTelemetry
 - Jaeger
 - Zipkin
 - Prometheus
-- Playwright automated server tests
-- Playwright automated client tests
-- Apache JMeter staged load testing
-- Lighthouse accessibility testing
+- Playwright
+- JMeter
+- Lighthouse
 
 ---
 
-# Database Design
+## Database Design
 
 The application uses Prisma ORM with SQLite.
 
-The main persistent entities are:
+### Author
 
-```text
-Author
-Feed
-RequestLog
-```
+Stores information about RSS authors.
 
-## Database Relationships
-
-```text
-Author
-  |
-  | 1
-  |
-  |------< many
-             |
-             v
-            Feed
-             |
-             | 1
-             |
-             |------< many
-                        |
-                        v
-                   RequestLog
-```
-
-An `Author` can create multiple `Feed` records.
-
-Each `Feed` belongs to one `Author`.
-
-A `RequestLog` can optionally reference a `Feed`.
-
----
-
-## Author Model
-
-The Author model stores information about RSS content authors.
-
-Important fields include:
+Important fields:
 
 - `id`
 - `name`
@@ -316,15 +176,13 @@ Important fields include:
 - `createdAt`
 - `updatedAt`
 
-The email address is optional and unique when supplied.
+One author can have multiple feeds.
 
----
+### Feed
 
-## Feed Model
+Stores RSS-style content and metadata.
 
-The Feed model represents RSS-style content stored by the server.
-
-Important fields include:
+Important fields:
 
 - `id`
 - `title`
@@ -333,20 +191,31 @@ Important fields include:
 - `link`
 - `imageUrl`
 - `category`
+- `status`
 - `publishedAt`
 - `authorId`
 - `createdAt`
 - `updatedAt`
 
-The model stores the content and metadata required to present RSS-style information through both the API and RSS Client.
+Supported feed states are:
 
----
+```text
+ACTIVE
+WARNING
+ERROR
+```
 
-## RequestLog Model
+New feeds default to:
 
-Assessment 3 introduces the `RequestLog` model to provide persistent operational telemetry.
+```text
+ACTIVE
+```
 
-Important fields include:
+### RequestLog
+
+Stores persistent operational request telemetry.
+
+Important fields:
 
 - `id`
 - `clientId`
@@ -356,121 +225,112 @@ Important fields include:
 - `feedId`
 - `createdAt`
 
-Indexes are defined for:
+Indexes are provided for:
 
 - `clientId`
 - `feedId`
 - `createdAt`
 
-These indexes support grouping and querying operational data by client, feed and time.
-
-Unlike the original Assessment 2 request counter, the `RequestLog` model stores telemetry in the database.
+This supports efficient grouping of operational information by client, feed and time.
 
 ---
 
-# Client Identification
-
-Clients can explicitly identify themselves using the HTTP header:
+## Data Relationships
 
 ```text
-X-Client-ID
+Author
+  |
+  | 1
+  |
+  +--------< Feed
+               |
+               | 1
+               |
+               +--------< RequestLog
 ```
 
-For example:
+A `Feed` belongs to one `Author`.
 
-```bash
-curl \
-  -H "X-Client-ID: example-client" \
-  http://localhost:3001/api/feeds/1
-```
+A `RequestLog` can optionally reference a `Feed`.
 
-The request logger attempts client identification in this order:
-
-```text
-1. X-Client-ID
-2. X-Forwarded-For
-3. X-Real-IP
-4. anonymous-client
-```
-
-Explicit client identification was also used during JMeter testing so that simulated clients could be observed individually in the dashboard.
+When a feed is deleted, historical request records are retained and their feed relationship can be set to null.
 
 ---
 
-# RSS Feed API
-
-The application implements full Create, Read, Update and Delete functionality.
+## Feed API
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/feeds` | Retrieve all RSS feeds |
-| POST | `/api/feeds` | Create an RSS feed |
-| GET | `/api/feeds/[id]` | Retrieve one RSS feed |
-| PUT | `/api/feeds/[id]` | Update an RSS feed |
-| DELETE | `/api/feeds/[id]` | Delete an RSS feed |
+| GET | `/api/feeds` | Retrieve all feeds |
+| POST | `/api/feeds` | Create a feed |
+| GET | `/api/feeds/[id]` | Retrieve one feed |
+| PUT | `/api/feeds/[id]` | Update a feed |
+| DELETE | `/api/feeds/[id]` | Delete a feed |
 
-API responses use appropriate HTTP status codes including:
+The API uses HTTP status codes including:
 
-```text
-200 OK
-201 Created
-400 Bad Request
-404 Not Found
-500 Internal Server Error
-```
+- `200 OK`
+- `201 Created`
+- `400 Bad Request`
+- `404 Not Found`
+- `500 Internal Server Error`
 
 ---
 
-# Example API Requests
+## Feed Status
 
-## Retrieve all feeds
+Feed status is stored persistently in the database.
 
-```bash
-curl http://localhost:3001/api/feeds
+The PUT endpoint accepts:
+
+```text
+ACTIVE
+WARNING
+ERROR
 ```
 
-## Retrieve one feed
+For example, a feed can be placed into a warning state through:
 
 ```bash
-curl http://localhost:3001/api/feeds/1
-```
-
-## Create a feed
-
-```bash
-curl -X POST http://localhost:3001/api/feeds \
+curl -X PUT http://localhost:3001/api/feeds/1 \
   -H "Content-Type: application/json" \
-  -H "X-Client-ID: example-client" \
+  -H "X-Client-ID: status-demo" \
   -d '{
-    "title": "Cloud Computing Feed",
-    "description": "A sample feed created through the API",
-    "content": "Sample RSS feed content",
-    "link": "https://example.com/cloud-feed",
+    "title": "Updated Cloud Computing News",
+    "description": "Updated cloud technology news from the RSS server",
+    "content": "This feed was updated through the PUT API endpoint.",
+    "link": "https://example.com/updated-cloud-news",
     "category": "Cloud Computing",
-    "author": {
-      "name": "Example Author",
-      "email": "example-author@example.com"
-    }
+    "status": "WARNING"
   }'
 ```
 
-## Retrieve operational metrics
+The resulting data flow is:
 
-```bash
-curl http://localhost:3001/api/metrics
+```text
+PUT API
+   |
+   v
+Prisma
+   |
+   v
+SQLite
+   |
+   v
+Feed.status = WARNING
+   |
+   v
+/api/metrics
+   |
+   v
+Operations Dashboard
 ```
 
-## Check application health
-
-```bash
-curl http://localhost:3001/health
-```
+The dashboard then displays the warning state and generates an operational alert.
 
 ---
 
-# Health Monitoring
-
-Assessment 3 requires a health check that returns HTTP `200 OK` when the application is healthy.
+## Health Monitoring
 
 The application provides:
 
@@ -479,13 +339,7 @@ GET /health
 GET /api/health
 ```
 
-The health check verifies database connectivity in addition to confirming that the web application is responding.
-
-Example:
-
-```bash
-curl -i http://localhost:3001/health
-```
+The `/health` endpoint checks application and database availability.
 
 Verified healthy response:
 
@@ -497,15 +351,15 @@ Verified healthy response:
 }
 ```
 
-The verified `/health` response returned:
+A healthy system returns:
 
 ```text
-HTTP/1.1 200 OK
+HTTP 200 OK
 ```
 
 ---
 
-# Operational Metrics API
+## Operational Metrics
 
 Assessment 3 introduces:
 
@@ -513,264 +367,222 @@ Assessment 3 introduces:
 GET /api/metrics
 ```
 
-The endpoint derives operational information from the database.
-
-Metrics include:
+The endpoint provides:
 
 - Total requests
-- Total feeds
+- Total RSS feeds
 - Unique clients
 - Successful requests
-- Error requests
-- Request success rate
+- Failed requests
+- Success rate
 - Requests per feed
 - Requests per client
 - Recent request activity
+- Feed-status summaries
 
-The endpoint intentionally does not record requests to itself because doing so would cause dashboard refreshes to continuously inflate the displayed request total.
+Example feed-status summary:
 
----
-
-# Operational Dashboard
-
-The application home page acts as the Assessment 3 operational dashboard.
-
-It retrieves live information from:
-
-```text
-/api/metrics
-/api/health
+```json
+{
+  "active": 1,
+  "warning": 0,
+  "error": 0,
+  "unknown": 0
+}
 ```
 
-The dashboard displays summary cards for:
+The metrics endpoint does not log requests to itself because that would cause dashboard refresh activity to continuously inflate the reported request count.
+
+---
+
+## Operational Dashboard
+
+The home page acts as the Assessment 3 operations dashboard.
+
+It displays:
+
+- Total Requests
+- RSS Feeds
+- Unique Clients
+- Success Rate
+- System Health
+- Feed Status
+- Requests per Feed
+- Requests per Client
+- Recent Request Activity
+
+The dashboard refreshes automatically every 10 seconds and also includes a manual Refresh control.
+
+---
+
+## Alerts
+
+The dashboard generates visible warnings for operational conditions including:
+
+- Server health failure
+- No feeds stored
+- Failed API requests
+- Success rate below 95%
+- Feeds in `WARNING`
+- Feeds in `ERROR`
+- Unrecognised feed states
+
+Example:
 
 ```text
-Total Requests
-RSS Feeds
-Unique Clients
-Success Rate
+1 RSS feed is in a warning state.
 ```
 
-Additional dashboard areas display:
-
-- Application health
-- Successful requests
-- Error requests
-- Requests per feed
-- Requests per client
-- Recent request activity
-- Operational warnings
-
-The dashboard refreshes automatically every 10 seconds.
-
-A manual refresh control is also available.
+This warning is driven by persistent database data rather than a hard-coded interface value.
 
 ---
 
-# Alerts and Warning Indicators
+## Client Identification
 
-The dashboard includes status and warning logic to help identify unusual application states.
+A client can provide:
 
-Examples include:
+```text
+X-Client-ID
+```
 
-- Server unavailable
-- Database or application health problem
-- API request errors
-- No RSS feeds available
-- Success rate below the expected threshold
+Example:
 
-These indicators provide visible operational feedback rather than requiring the user to inspect raw API responses.
+```bash
+curl \
+  -H "X-Client-ID: example-client" \
+  http://localhost:3001/api/feeds/1
+```
 
-A dedicated persistent feed-status field is not currently stored. Feed availability is instead represented through feed records, application health, empty-feed handling and request outcomes.
+The request logger attempts client identification in this order:
+
+1. `X-Client-ID`
+2. `X-Forwarded-For`
+3. `X-Real-IP`
+4. `anonymous-client`
+
+JMeter uses this mechanism to generate identifiable simulated clients.
 
 ---
 
-# Persistent Request Telemetry
+## Persistent Request Telemetry
 
-Persistent telemetry is implemented in:
+Request logging is implemented through:
 
 ```text
 lib/request-logger.ts
 ```
 
-The logger records:
+A typical request follows:
 
 ```text
-Client identifier
-API endpoint
-HTTP method
-HTTP status code
-Feed identifier where applicable
-Timestamp
+Client
+   |
+   v
+GET /api/feeds/1
+   |
+   v
+Next.js Route Handler
+   |
+   +------> Prisma retrieves Feed
+   |
+   +------> recordRequest()
+                |
+                v
+            RequestLog
+                |
+                v
+           /api/metrics
+                |
+                v
+       Operations Dashboard
 ```
 
-Request logging is performed on feed operations so that activity can be analysed by both client and feed.
-
-The logging operation is protected by error handling so that a telemetry failure does not prevent the primary API response from being processed.
+The Assessment 2 `/api/count` endpoint remains available for backwards compatibility, but Assessment 3 reporting uses persistent `RequestLog` records.
 
 ---
 
-# Legacy Assessment 2 Request Counter
+## OpenTelemetry
 
-Assessment 2 introduced:
-
-```text
-/api/count
-```
-
-This counter remains in the application for backwards compatibility.
-
-It is stored in application memory and resets when the Node.js process restarts.
-
-Assessment 3 reporting instead uses:
-
-```text
-RequestLog
-        ↓
-/api/metrics
-        ↓
-Operational Dashboard
-```
-
-This provides persistent and significantly more useful telemetry than the original in-memory counter.
-
----
-
-# OpenTelemetry Instrumentation
-
-Assessment 3 adds OpenTelemetry instrumentation to the Next.js application.
-
-Instrumentation is registered using:
+The application is instrumented through:
 
 ```text
 instrumentation.ts
 ```
 
-The service is registered as:
+Service name:
 
 ```text
 rss-lms-frontend
 ```
 
-The application exports telemetry using the OpenTelemetry Protocol.
-
-Local configuration uses:
+Local OTLP configuration:
 
 ```env
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 NEXT_OTEL_VERBOSE=1
 ```
 
-Environment configuration is excluded from Git where appropriate.
-
 ---
 
-# Observability Architecture
+## Observability Stack
 
 ```text
-Browser / API Client
-        |
-        v
-   Next.js Application
-        |
-        | OpenTelemetry / OTLP
-        v
-┌────────────────────────┐
-│ OpenTelemetry Collector│
-└───────────┬────────────┘
-            |
-      ┌─────┼─────┐
-      |     |     |
-      v     v     v
-   Jaeger Zipkin Prometheus
+Next.js
+   |
+   | OTLP
+   v
+OpenTelemetry Collector
+   |
+   +------> Jaeger
+   |
+   +------> Zipkin
+   |
+   +------> Prometheus
 ```
 
-The OpenTelemetry Collector separates application instrumentation from the monitoring backends.
+### OpenTelemetry Collector
 
-This provides a vendor-neutral telemetry pipeline and makes the architecture easier to extend later.
+Important ports:
 
----
+| Port | Purpose |
+|---|---|
+| 4317 | OTLP gRPC |
+| 4318 | OTLP HTTP |
+| 8888 | Collector metrics |
+| 8889 | Prometheus exporter |
+| 13133 | Collector health |
 
-# OpenTelemetry Collector
-
-The Collector receives OTLP traffic on:
-
-```text
-4317 - OTLP gRPC
-4318 - OTLP HTTP
-```
-
-Additional local endpoints include:
-
-```text
-13133 - Collector health
-8888  - Collector internal metrics
-8889  - Prometheus exporter
-```
-
-Collector health can be verified with:
+Health check:
 
 ```bash
 curl -i http://localhost:13133/
 ```
 
-The Assessment 3 verification returned:
+The Collector health endpoint was verified returning HTTP 200.
 
-```text
-HTTP/1.1 200 OK
-```
-
----
-
-# Jaeger
-
-Jaeger provides distributed trace visualisation.
-
-Local interface:
+### Jaeger
 
 ```text
 http://localhost:16686
 ```
 
-The application appears using the service name:
+Application service:
 
 ```text
 rss-lms-frontend
 ```
 
-Application traffic can be generated and corresponding traces inspected through the Jaeger user interface.
+Jaeger was used to inspect application traces.
 
-Examples include:
-
-```text
-/api/feeds
-/api/feeds/1
-/api/health
-/api/metrics
-/health
-```
-
----
-
-# Zipkin
-
-Zipkin provides an additional trace backend for the OpenTelemetry Collector.
-
-Local interface:
+### Zipkin
 
 ```text
 http://localhost:9411
 ```
 
-This demonstrates that the telemetry pipeline can export traces to more than one compatible backend.
+Zipkin provides an additional tracing backend.
 
----
-
-# Prometheus
-
-Prometheus provides metrics collection and querying.
-
-Local interface:
+### Prometheus
 
 ```text
 http://localhost:9090
@@ -782,583 +594,13 @@ A useful verification query is:
 up
 ```
 
-A value of:
-
-```text
-1
-```
-
-indicates that Prometheus successfully scraped a configured target.
-
-The OpenTelemetry Collector also exposes its own telemetry at:
-
-```text
-http://localhost:8888/metrics
-```
-
-For example:
-
-```bash
-curl -s http://localhost:8888/metrics | grep otelcol_ | head
-```
-
-The Collector metrics should be distinguished from the business and application metrics stored in the application's `RequestLog` table.
+A value of `1` indicates a successfully scraped target.
 
 ---
 
-# Running the Observability Stack
+## Running the Observability Stack
 
-Start the observability services:
-
-```bash
-docker compose up -d
-```
-
-Verify container status:
-
-```bash
-docker compose ps
-```
-
-The stack contains:
-
-```text
-otel-collector
-jaegertracing
-zipkin-all-in-one
-prometheus
-```
-
-Verify Collector health:
-
-```bash
-curl -i http://localhost:13133/
-```
-
-Open:
-
-```text
-Jaeger:
-http://localhost:16686
-
-Zipkin:
-http://localhost:9411
-
-Prometheus:
-http://localhost:9090
-```
-
-Stop the stack when required:
-
-```bash
-docker compose down
-```
-
----
-
-# Automated Testing
-
-## Playwright
-
-Playwright is used for end-to-end testing of both the RSS Server and RSS Client.
-
-Run all Playwright tests with:
-
-```bash
-npx playwright test
-```
-
-The final regression run completed:
-
-```text
-2 passed
-```
-
----
-
-## RSS Server CRUD Test
-
-The server test validates the complete RSS feed lifecycle.
-
-```text
-POST feed
-    |
-    v
-GET feed
-    |
-    v
-PUT feed
-    |
-    v
-GET updated feed
-    |
-    v
-DELETE feed
-    |
-    v
-GET deleted feed
-    |
-    v
-Expected 404
-```
-
-This demonstrates Create, Read, Update and Delete functionality through the API rather than relying on manual testing alone.
-
----
-
-## RSS Client Test
-
-The client Playwright test verifies frontend/backend integration.
-
-The test:
-
-1. Creates a temporary RSS feed using the API.
-2. Opens the `/feeds` page.
-3. Waits for the frontend to retrieve data.
-4. Verifies that the created feed is displayed.
-5. Removes the temporary feed after testing.
-
-This confirms that the browser-facing RSS Client can retrieve and display information generated by the backend.
-
----
-
-# Performance and Load Testing
-
-## Apache JMeter
-
-Apache JMeter is used to perform staged load testing against the RSS server workflow.
-
-The test plan is stored at:
-
-```text
-performance/rss-load-test.jmx
-```
-
-The primary test request is:
-
-```text
-GET /api/feeds/1
-```
-
-Each JMeter thread identifies itself using:
-
-```text
-X-Client-ID: jmeter-client-${threadNumber}
-```
-
-This allows JMeter traffic to be correlated with persistent telemetry in the Assessment 3 dashboard.
-
----
-
-# JMeter Staged Testing
-
-Progressive testing was performed using increasing load.
-
-| Test Stage | Workload | Errors |
-|---|---:|---:|
-| Baseline | 1 request | 0% |
-| Small | 10 requests | 0% |
-| Medium | 100 requests | 0% |
-| High | 1,000 requests | 0% |
-| Stress | 10,000 requests | 3.34% |
-
----
-
-## Baseline Test
-
-The single-request baseline produced:
-
-```text
-Samples: 1
-Errors: 0
-Average: approximately 45 ms
-```
-
-This confirmed basic connectivity before increasing workload.
-
----
-
-## 10-Request Test
-
-The small test produced:
-
-```text
-Samples: 10
-Errors: 0
-Error rate: 0.00%
-Average response: approximately 13 ms
-```
-
----
-
-## 100-Request Test
-
-The 100-request stage produced:
-
-```text
-Samples: 100
-Failed: 0
-Error rate: 0%
-Average: approximately 9 ms
-Minimum: approximately 5 ms
-Maximum: approximately 64 ms
-Median: approximately 7 ms
-90th percentile: approximately 10 ms
-95th percentile: approximately 23 ms
-99th percentile: approximately 64 ms
-Throughput: approximately 10 requests/second
-APDEX: 1.000
-```
-
-The application remained stable at this load.
-
----
-
-## 1,000-Request Test
-
-The 1,000-request stage produced:
-
-```text
-Samples: 1,000
-Failed: 0
-Error rate: 0%
-Average: approximately 9 ms
-Minimum: approximately 4 ms
-Maximum: approximately 143 ms
-Median: approximately 5 ms
-90th percentile: approximately 12 ms
-95th percentile: approximately 32 ms
-99th percentile: approximately 82 ms
-Throughput: approximately 50 requests/second
-APDEX: 1.000
-```
-
-The local application continued to process requests without errors.
-
----
-
-## 10,000-Request Stress Test
-
-The highest stage used:
-
-```text
-1,000 simulated clients
-×
-10 requests each
-=
-10,000 total requests
-```
-
-This should not be interpreted as 10,000 simultaneous users.
-
-Results:
-
-```text
-Samples: 10,000
-Failed: 334
-Passed: 96.66%
-Error rate: 3.34%
-
-Average response: approximately 1.67 seconds
-Median: approximately 356 ms
-90th percentile: approximately 5.9 seconds
-95th percentile: approximately 15.1 seconds
-99th percentile: approximately 15.8 seconds
-Maximum: approximately 22.4 seconds
-
-Throughput: approximately 199 requests/second
-APDEX: approximately 0.833
-```
-
-The failures were connection-level timeout errors rather than application HTTP error responses.
-
-The test therefore identified a saturation point in the local development architecture.
-
----
-
-# Performance Interpretation
-
-The 1, 10, 100 and 1,000 stages completed without errors.
-
-At the 10,000-request stress stage:
-
-- Latency increased significantly.
-- 334 requests failed.
-- Error rate increased to 3.34%.
-- Throughput reached approximately 199 requests per second.
-- Connection-level timeouts were observed.
-
-Potential contributing factors include:
-
-- Next.js running as a single local application process
-- SQLite being a local file-based database
-- Each monitored request generating a database telemetry write
-- JMeter and the application running on the same Mac
-- Local CPU, memory, networking and storage limitations
-
-The test therefore demonstrates the behaviour and limitations of the local Assessment 3 environment.
-
-It does **not** represent a validated production capacity measurement.
-
----
-
-# JMeter Telemetry Verification
-
-Testing identified an important observability defect.
-
-Initially, the individual feed endpoint:
-
-```text
-GET /api/feeds/[id]
-```
-
-updated only the original Assessment 2 in-memory request counter.
-
-It did not write these requests to the Assessment 3 `RequestLog` model.
-
-This meant the first JMeter load tests successfully exercised the API, but those requests were not represented in `/api/metrics`.
-
-The route was corrected to persist request telemetry.
-
----
-
-## Controlled Verification
-
-Before testing:
-
-```text
-Total requests: 21
-Unique clients: 5
-```
-
-Three requests were sent using:
-
-```text
-X-Client-ID: manual-telemetry-test
-```
-
-After testing:
-
-```text
-Total requests: 24
-Unique clients: 6
-```
-
-The dashboard then reported:
-
-```text
-manual-telemetry-test: 3 requests
-```
-
-Feed 1 also recorded:
-
-```text
-3 requests
-```
-
-This confirmed that the corrected individual-feed route was persisting telemetry successfully.
-
----
-
-## Final 10-Client JMeter Verification
-
-A final small JMeter test was then executed.
-
-Result:
-
-```text
-Samples: 10
-Average: 11 ms
-Minimum: 5 ms
-Maximum: 31 ms
-Errors: 0
-Error rate: 0.00%
-```
-
-Before JMeter:
-
-```text
-Total requests: 24
-Unique clients: 6
-Feed 1 requests: 3
-```
-
-After JMeter:
-
-```text
-Total requests: 34
-Unique clients: 16
-Feed 1 requests: 13
-```
-
-The metrics also contained:
-
-```text
-jmeter-client-1
-jmeter-client-2
-jmeter-client-3
-jmeter-client-4
-jmeter-client-5
-jmeter-client-6
-jmeter-client-7
-jmeter-client-8
-jmeter-client-9
-jmeter-client-10
-```
-
-This verified the complete path:
-
-```text
-JMeter
-   |
-   v
-GET /api/feeds/1
-   |
-   v
-Next.js
-   |
-   v
-recordRequest()
-   |
-   v
-Prisma
-   |
-   v
-RequestLog
-   |
-   v
-/api/metrics
-   |
-   v
-Assessment 3 Dashboard
-```
-
-This debugging process demonstrates why testing and observability are complementary. Load testing exposed a monitoring gap that was not visible through normal functional testing.
-
----
-
-# Lighthouse Accessibility and Quality Testing
-
-Chrome Lighthouse was used against the production build.
-
-The final clean Incognito audit produced:
-
-| Lighthouse Category | Score |
-|---|---:|
-| Performance | 100 |
-| Accessibility | 100 |
-| Best Practices | 100 |
-| SEO | 100 |
-
-The first Lighthouse run achieved:
-
-```text
-Performance: 90
-Accessibility: 100
-Best Practices: 100
-SEO: 100
-```
-
-The initial performance result included a warning that browser extensions were affecting page load performance.
-
-The test was repeated using a clean Chrome Incognito session against the production application.
-
-The resulting audit achieved:
-
-```text
-Performance: 100
-Accessibility: 100
-Best Practices: 100
-SEO: 100
-```
-
-The accessibility audit did not identify accessibility failures requiring code changes.
-
-The final design therefore retained its existing accessible structure rather than making unnecessary changes merely to produce a difference between audits.
-
-The testing process did result in an improvement to the measurement environment by removing browser-extension interference.
-
----
-
-# Local Installation
-
-## 1. Clone the repository
-
-```bash
-git clone https://github.com/josephtipo/rss-lms-frontend.git
-cd rss-lms-frontend
-```
-
----
-
-## 2. Install Node dependencies
-
-```bash
-npm install
-```
-
----
-
-## 3. Configure the database
-
-Create:
-
-```text
-.env
-```
-
-Example configuration:
-
-```env
-DATABASE_URL="file:./dev.db"
-```
-
-Do not commit sensitive environment configuration to Git.
-
----
-
-## 4. Generate Prisma Client
-
-```bash
-npx prisma generate
-```
-
----
-
-## 5. Apply Database Migrations
-
-For an existing environment:
-
-```bash
-npx prisma migrate deploy
-```
-
-For development when making schema changes:
-
-```bash
-npx prisma migrate dev
-```
-
----
-
-## 6. Configure OpenTelemetry
-
-Create:
-
-```text
-.env.local
-```
-
-Example local configuration:
-
-```env
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
-NEXT_OTEL_VERBOSE=1
-```
-
----
-
-## 7. Start the Observability Stack
+Start:
 
 ```bash
 docker compose up -d
@@ -1370,15 +612,301 @@ Verify:
 docker compose ps
 ```
 
+Stop:
+
+```bash
+docker compose down
+```
+
 ---
 
-## 8. Start the Development Server
+## Playwright Testing
+
+Playwright provides automated end-to-end testing.
+
+Run:
+
+```bash
+npx playwright test
+```
+
+The final regression execution completed:
+
+```text
+2 passed
+```
+
+### Server Test
+
+The server test verifies the complete feed lifecycle:
+
+```text
+POST
+  |
+  v
+GET
+  |
+  v
+PUT
+  |
+  v
+GET
+  |
+  v
+DELETE
+  |
+  v
+GET -> expected 404
+```
+
+This verifies feed CRUD behaviour.
+
+### Client Test
+
+The client test:
+
+1. Creates temporary feed data.
+2. Opens `/feeds`.
+3. Retrieves the feed through the frontend.
+4. Confirms the feed is displayed.
+5. Deletes the temporary test feed.
+
+This tests the complete browser-to-backend data path.
+
+---
+
+## JMeter Load Testing
+
+The JMeter test plan is:
+
+```text
+performance/rss-load-test.jmx
+```
+
+The primary request tested is:
+
+```text
+GET /api/feeds/1
+```
+
+Each simulated client uses:
+
+```text
+X-Client-ID: jmeter-client-${threadNumber}
+```
+
+### Staged Results
+
+| Stage | Requests | Error Rate |
+|---|---:|---:|
+| Baseline | 1 | 0% |
+| Small | 10 | 0% |
+| Medium | 100 | 0% |
+| High | 1,000 | 0% |
+| Stress | 10,000 | 3.34% |
+
+### 100 Requests
+
+Observed:
+
+- 100 samples
+- 0 failures
+- Average response approximately 9 ms
+- Maximum approximately 64 ms
+- Throughput approximately 10 requests/second
+
+### 1,000 Requests
+
+Observed:
+
+- 1,000 samples
+- 0 failures
+- Average response approximately 9 ms
+- Maximum approximately 143 ms
+- Throughput approximately 50 requests/second
+
+### 10,000-Request Stress Stage
+
+The stress test used:
+
+```text
+1,000 simulated clients
+x
+10 requests
+=
+10,000 requests
+```
+
+This does not represent 10,000 simultaneous users.
+
+Observed:
+
+- 10,000 samples
+- 334 failures
+- 3.34% error rate
+- Average response approximately 1.67 seconds
+- Median approximately 356 ms
+- 90th percentile approximately 5.9 seconds
+- Maximum approximately 22.4 seconds
+- Throughput approximately 199 requests/second
+- APDEX approximately 0.833
+
+The failures were connection-level timeouts.
+
+These results identify a saturation point in the local test architecture.
+
+They should not be interpreted as production capacity because both JMeter and the application were running on the same development computer.
+
+---
+
+## JMeter Telemetry Verification
+
+Testing exposed a gap in the original request telemetry implementation.
+
+Initially:
+
+```text
+GET /api/feeds/[id]
+```
+
+updated only the legacy in-memory counter and did not persist its traffic in `RequestLog`.
+
+The route was corrected and re-tested.
+
+A controlled three-request test changed:
+
+```text
+Total requests: 21 -> 24
+Unique clients: 5 -> 6
+```
+
+and produced:
+
+```text
+manual-telemetry-test: 3 requests
+```
+
+A subsequent 10-client JMeter test produced:
+
+```text
+10 samples
+0 errors
+```
+
+The persistent metrics changed:
+
+```text
+Total requests: 24 -> 34
+Unique clients: 6 -> 16
+Feed 1 requests: 3 -> 13
+```
+
+and reported:
+
+```text
+jmeter-client-1
+jmeter-client-2
+...
+jmeter-client-10
+```
+
+This verified:
+
+```text
+JMeter
+   |
+   v
+Next.js API
+   |
+   v
+RequestLog
+   |
+   v
+SQLite
+   |
+   v
+/api/metrics
+   |
+   v
+Dashboard
+```
+
+---
+
+## Lighthouse
+
+Chrome Lighthouse was used against the production build.
+
+Final clean Incognito results:
+
+| Category | Score |
+|---|---:|
+| Performance | 100 |
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+An earlier run achieved Performance 90 while the other categories scored 100.
+
+Chrome reported that browser extensions could affect performance, so the test was repeated in a clean Incognito environment.
+
+The clean production audit achieved 100 in all four categories.
+
+No accessibility code changes were required because Lighthouse did not identify accessibility failures.
+
+---
+
+## Local Setup
+
+### Clone
+
+```bash
+git clone https://github.com/josephtipo/rss-lms-frontend.git
+cd rss-lms-frontend
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Configure database
+
+Create `.env`:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### Apply migrations
+
+```bash
+npx prisma migrate deploy
+```
+
+### Configure OpenTelemetry
+
+Create `.env.local`:
+
+```env
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+NEXT_OTEL_VERBOSE=1
+```
+
+### Development server
 
 ```bash
 npm run dev
 ```
 
-Default development address:
+Default:
 
 ```text
 http://localhost:3000
@@ -1386,70 +914,39 @@ http://localhost:3000
 
 ---
 
-# Production Build
+## Production Build
 
-Build the optimized Next.js application:
+Build:
 
 ```bash
 npm run build
 ```
 
-Start the production server on port 3001:
+Start on the Assessment 3 test port:
 
 ```bash
 npm start -- -p 3001
 ```
 
-Assessment 3 final testing used:
+Open:
 
 ```text
 http://localhost:3001
 ```
 
-Port 3001 was used to keep production testing separate from the earlier Docker application configuration using port 3000.
+The final production build completed successfully with TypeScript validation and page generation.
 
 ---
 
-# Verified Production Build
+## Docker
 
-The final production build completed successfully using Next.js 16.2.10.
-
-Verified routes included:
-
-```text
-/
- /about
- /feeds
- /settings
- /api/count
- /api/feeds
- /api/feeds/[id]
- /api/health
- /api/metrics
- /health
-```
-
-The build successfully completed:
-
-```text
-Compilation
-TypeScript validation
-Page-data collection
-Static page generation
-Page optimisation
-```
-
----
-
-# Docker Application Deployment
-
-Build the Docker image:
+Build:
 
 ```bash
 docker build -t rss-lms-app .
 ```
 
-Run the application with persistent database storage:
+Run:
 
 ```bash
 docker run -d \
@@ -1459,126 +956,58 @@ docker run -d \
   rss-lms-app
 ```
 
-Open:
-
-```text
-http://localhost:3000
-```
-
----
-
-## Docker Database Persistence
-
-The application uses the Docker named volume:
+The named volume:
 
 ```text
 rss-lms-data
 ```
 
-mounted at:
-
-```text
-/app/data
-```
-
-The volume separates persistent database data from the container lifecycle.
-
-Removing and recreating the application container therefore does not necessarily remove the database.
+persists SQLite database data independently of the application container.
 
 ---
 
-## Useful Docker Commands
-
-View running containers:
-
-```bash
-docker ps
-```
-
-View application logs:
-
-```bash
-docker logs rss-lms-container
-```
-
-Open a shell:
-
-```bash
-docker exec -it rss-lms-container sh
-```
-
-Remove the application container:
-
-```bash
-docker rm -f rss-lms-container
-```
-
-Inspect Docker volumes:
-
-```bash
-docker volume ls
-```
-
----
-
-# Project Structure
+## Project Structure
 
 ```text
 rss-lms-frontend/
-│
 ├── app/
 │   ├── api/
 │   │   ├── count/
-│   │   │   └── route.ts
 │   │   ├── feeds/
 │   │   │   ├── [id]/
-│   │   │   │   └── route.ts
 │   │   │   └── route.ts
 │   │   ├── health/
-│   │   │   └── route.ts
 │   │   └── metrics/
-│   │       └── route.ts
-│   │
 │   ├── about/
 │   ├── feeds/
 │   ├── settings/
-│   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
-│
 ├── components/
-│
 ├── lib/
 │   ├── generated/
 │   ├── prisma.ts
 │   ├── request-counter.ts
 │   └── request-logger.ts
-│
 ├── performance/
 │   └── rss-load-test.jmx
-│
 ├── prisma/
 │   ├── migrations/
 │   └── schema.prisma
-│
 ├── tests/
 │   ├── client-feed.spec.ts
 │   └── server-feed-crud.spec.ts
-│
 ├── instrumentation.ts
 ├── playwright.config.ts
 ├── docker-compose.yml
 ├── otel-collector-config.yaml
 ├── prometheus.yaml
 ├── Dockerfile
-├── prisma.config.ts
 ├── package.json
 └── README.md
 ```
 
-Generated test output and local runtime data are excluded from source control.
-
-Examples include:
+Generated output and local runtime data are excluded from Git, including:
 
 ```text
 node_modules/
@@ -1592,37 +1021,118 @@ dev.db
 
 ---
 
-# Available NPM Scripts
+## Security Considerations
 
-The project defines the following scripts:
+Security measures appropriate to the assessment include:
 
-```json
-{
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint"
-}
-```
+- Prisma ORM for database access
+- Required API field validation
+- Validated feed status values
+- Structured API error responses
+- Environment-based configuration
+- No hard-coded credentials
+- Local database excluded from Git
+- Test artefacts excluded from Git
+- Docker build exclusions
 
-Examples:
+A production application would additionally require:
 
-```bash
-npm run dev
-npm run build
-npm start
-npm run lint
-```
-
-Playwright is run separately using:
-
-```bash
-npx playwright test
-```
+- Authentication
+- Authorisation
+- HTTPS
+- Rate limiting
+- Secrets management
+- Monitoring endpoint restrictions
+- Security headers
+- Centralised auditing
+- Dependency vulnerability scanning
 
 ---
 
-# Git and Repository Workflow
+## Scalability
+
+The current architecture is designed for a local university assessment.
+
+The JMeter stress test demonstrates that higher-scale deployment would require architectural changes.
+
+A possible production architecture is:
+
+```text
+Users
+  |
+  v
+CDN / WAF
+  |
+  v
+Load Balancer
+  |
+  +--------+--------+
+  |        |        |
+  v        v        v
+Next.js  Next.js  Next.js
+  |        |        |
+  +--------+--------+
+           |
+           v
+     Managed Database
+```
+
+Potential improvements include:
+
+- Managed PostgreSQL
+- Connection pooling
+- Horizontal application scaling
+- Load balancing
+- Caching
+- Rate limiting
+- Asynchronous telemetry processing
+- Managed observability
+- Automated CI/CD
+- Backup and recovery
+- Multi-zone deployment
+
+SQLite remains appropriate for the current local project because it keeps the implementation simple while still demonstrating relational persistence and ORM concepts.
+
+---
+
+## Known Limitations
+
+- SQLite uses a local database file.
+- The application runs as a single Next.js process.
+- Telemetry generates additional database writes.
+- Authentication is not implemented.
+- Monitoring services are configured for local use.
+- JMeter and the application shared the same test computer.
+- Stress-test figures therefore represent the local test environment, not validated production capacity.
+
+---
+
+## Verified Assessment 3 Evidence
+
+| Verification | Result |
+|---|---|
+| Production build | PASS |
+| `/health` | HTTP 200 |
+| Database connectivity | Connected |
+| Feed CRUD API | Functional |
+| `/api/metrics` | Functional |
+| Feed status persistence | Functional |
+| Feed warning alert | Functional |
+| Playwright server test | PASS |
+| Playwright client test | PASS |
+| Final Playwright run | 2 passed |
+| JMeter 10-client telemetry test | 0% errors |
+| OTel Collector health | HTTP 200 |
+| Jaeger application tracing | Verified |
+| Prometheus scraping | Verified |
+| Lighthouse Performance | 100 |
+| Lighthouse Accessibility | 100 |
+| Lighthouse Best Practices | 100 |
+| Lighthouse SEO | 100 |
+
+---
+
+## Git Workflow
 
 GitHub repository:
 
@@ -1630,383 +1140,61 @@ GitHub repository:
 https://github.com/josephtipo/rss-lms-frontend
 ```
 
-Assessment work has been developed using feature branches rather than placing all development directly on `main`.
-
 Assessment 3 development branch:
 
 ```text
 feature/assessment-3
 ```
 
-Assessment 3 development has included separate commits for major areas such as:
+Development has been separated into meaningful commits covering:
 
-- Request telemetry
-- Operational dashboard
-- Health endpoint
+- Persistent telemetry
+- Dashboard and health monitoring
 - Metrics API
-- OpenTelemetry observability
-- Playwright testing
-- JMeter testing
-- Telemetry defect correction
+- OpenTelemetry
+- Playwright
+- JMeter
+- Telemetry bug fix
+- Feed-status monitoring
 - Documentation
 
-This provides an incremental development history and makes changes easier to review and explain.
-
-The final repository should contain:
-
-```text
-Clean main branch
-Feature branch history
-Meaningful commits
-Up-to-date README
-No node_modules directory
-No generated test reports
-No committed secrets
-```
+This provides a clear implementation history rather than placing all development into one commit.
 
 ---
 
-# Testing Strategy
+## Submission Checklist
 
-Assessment 3 uses several forms of testing because each type proves something different.
+Before submission:
 
-| Test | What it demonstrates |
-|---|---|
-| Production build | Application compiles and TypeScript is valid |
-| API health test | Application and database are available |
-| Playwright server test | RSS API CRUD behaviour |
-| Playwright client test | Browser-to-backend integration |
-| JMeter | Behaviour under increasing traffic |
-| Lighthouse | Accessibility and frontend quality |
-| OpenTelemetry | Runtime trace visibility |
-| Prometheus | Metrics pipeline availability |
-| Dashboard telemetry | Operational behaviour and request reporting |
-
-No single test is sufficient to prove the complete application works.
-
----
-
-# Security Considerations
-
-The application applies several appropriate security practices for the assessment environment.
-
-These include:
-
-- Database access through Prisma ORM
-- Required API field validation
-- Structured API error responses
-- Environment-based configuration
-- No hard-coded credentials
-- Environment files excluded from Git
-- Development database excluded from Git
-- Generated test artefacts excluded from Git
-- Docker build exclusions
-- Database relationship constraints
-- Controlled handling of deleted feed telemetry
-
-The application does not currently implement authentication and authorisation because this is outside the primary scope of Assessment 3.
-
-A production implementation would additionally require:
-
-- Authentication
-- Authorisation
-- HTTPS
-- Rate limiting
-- Secure secrets management
-- Monitoring endpoint access controls
-- Network segmentation
-- Database access restrictions
-- Security headers
-- Centralised auditing
-- Dependency vulnerability scanning
+- [ ] Final build passes
+- [ ] Playwright tests pass
+- [ ] `/health` returns HTTP 200
+- [ ] Feed status returned to `ACTIVE`
+- [ ] Dashboard reviewed
+- [ ] Warning demonstration evidence captured
+- [ ] Jaeger evidence captured
+- [ ] Prometheus evidence captured
+- [ ] JMeter evidence captured
+- [ ] Lighthouse evidence captured
+- [ ] README committed
+- [ ] `feature/assessment-3` merged into `main`
+- [ ] `main` pushed to GitHub
+- [ ] Final Git tag created
+- [ ] `node_modules` excluded from submission
+- [ ] Generated reports excluded
+- [ ] Secrets excluded
+- [ ] Project ZIP created
+- [ ] GitHub repository link included
+- [ ] 3–8 minute video recorded
+- [ ] Student ID shown in video
+- [ ] Face and voice included
+- [ ] GitHub homepage and commits shown
+- [ ] AI acknowledgement completed
+- [ ] Similarity score checked after submission
 
 ---
 
-# Scalability Analysis
-
-The current application is intentionally appropriate for a local university assessment.
-
-SQLite provides lightweight relational persistence without requiring a separate database server.
-
-The JMeter stress testing demonstrates why this architecture would need to evolve for higher-scale production workloads.
-
-A larger implementation could use:
-
-```text
-                       Internet
-                          |
-                          v
-                    CDN / WAF
-                          |
-                          v
-                    Load Balancer
-                    /     |      \
-                   /      |       \
-                  v       v        v
-             Next.js   Next.js   Next.js
-              App 1     App 2     App 3
-                  \       |       /
-                   \      |      /
-                    v     v     v
-                  Managed Database
-                         |
-                         v
-                  Connection Pool
-```
-
-Potential production improvements include:
-
-- Managed PostgreSQL or another production database
-- Database connection pooling
-- Multiple stateless application instances
-- Horizontal scaling
-- Load balancing
-- Caching
-- CDN
-- Rate limiting
-- Asynchronous telemetry processing
-- Telemetry batching
-- Managed OpenTelemetry services
-- Centralised logging
-- Automated CI/CD
-- Managed secrets
-- Backup and recovery
-- Multi-zone availability
-
-These improvements are intentionally not added to the Assessment 3 application because they would add unnecessary complexity to the local implementation.
-
----
-
-# Telemetry Scalability Consideration
-
-The current request logger performs a persistent database operation for monitored requests.
-
-This gives reliable, queryable Assessment 3 telemetry but introduces additional database I/O.
-
-At higher scale, a production architecture could decouple application responses from telemetry persistence.
-
-For example:
-
-```text
-API Request
-    |
-    +------> User response
-    |
-    +------> Queue / telemetry buffer
-                 |
-                 v
-          Asynchronous worker
-                 |
-                 v
-          Telemetry database
-```
-
-This would reduce the request path's dependency on synchronous telemetry writes.
-
----
-
-# Reliability Considerations
-
-The application includes several reliability mechanisms:
-
-- Health checking
-- Database connection verification
-- Structured API errors
-- Persistent database records
-- Persistent Docker storage
-- Request telemetry
-- Automated regression tests
-- Load testing
-- Runtime observability
-- Dashboard warnings
-
-For a production deployment, additional resilience could include:
-
-- Multi-instance deployment
-- Database replication
-- Automated backups
-- Retry policies
-- Circuit breakers
-- Load balancing
-- Queue-based processing
-- Disaster recovery procedures
-- Multi-zone deployment
-
----
-
-# Known Limitations
-
-The Assessment 3 implementation has several deliberate limitations.
-
-### SQLite
-
-SQLite uses a single local database file and is appropriate for the current local project but is not intended to represent a large-scale distributed database architecture.
-
-### Single Application Instance
-
-The application currently runs as one Next.js process during local testing.
-
-### Local Load Testing
-
-JMeter and the Next.js application were executed on the same Mac.
-
-The measured performance therefore includes contention from both the load generator and application running on the same physical computer.
-
-### Persistent Telemetry Overhead
-
-Operational telemetry creates additional database writes.
-
-### Authentication
-
-Authentication and authorisation are not currently implemented.
-
-### Feed Status
-
-A dedicated persistent `Feed.status` field is not currently implemented. Status is instead inferred from health state, available feed records, request results and empty/error conditions.
-
-### Observability Environment
-
-Jaeger, Zipkin, Prometheus and OpenTelemetry are configured as local development services rather than hardened production monitoring infrastructure.
-
-### Cloud Deployment
-
-Assessment 3 is executed locally. Cloud deployment and the final integrated live demonstration are part of the broader project progression rather than being unnecessarily introduced into this stage.
-
----
-
-# Final Verification Evidence
-
-The following results have been directly verified during Assessment 3 development.
-
-| Verification | Result |
-|---|---|
-| Git working tree | Clean during validation |
-| Next.js production build | PASS |
-| TypeScript build validation | PASS |
-| `/health` | HTTP 200 |
-| Database health | Connected |
-| `/api/health` | Healthy |
-| `/api/feeds` | Functional |
-| `/api/metrics` | Functional |
-| Playwright server test | PASS |
-| Playwright client test | PASS |
-| Full Playwright run | 2 passed |
-| JMeter baseline | 0% errors |
-| JMeter 10 request | 0% errors |
-| JMeter 100 request | 0% errors |
-| JMeter 1,000 request | 0% errors |
-| JMeter 10,000 stress test | 3.34% errors |
-| JMeter telemetry verification | 10/10 successful |
-| OpenTelemetry Collector health | HTTP 200 |
-| Jaeger | Application tracing verified |
-| Zipkin | Running |
-| Prometheus | Scraping verified |
-| Lighthouse Performance | 100 |
-| Lighthouse Accessibility | 100 |
-| Lighthouse Best Practices | 100 |
-| Lighthouse SEO | 100 |
-
-Test results are only documented as successful where they were actually executed and observed.
-
----
-
-# Assessment 3 Requirement Mapping
-
-| Assessment Requirement | Implementation |
-|---|---|
-| Data-driven dashboard | Operational home dashboard |
-| RSS summaries | Feed count and feed request reporting |
-| Database persistence | Prisma + SQLite |
-| RSS records | Author and Feed models |
-| Operational data | RequestLog model |
-| Total requests | `/api/metrics` |
-| Requests per feed | `/api/metrics` and dashboard |
-| Requests per client | `/api/metrics` and dashboard |
-| Unique clients | `/api/metrics` and dashboard |
-| Health check | `/health` returns HTTP 200 when healthy |
-| Alerts/warnings | Dashboard health and unusual-state indicators |
-| Server E2E test | Playwright CRUD test |
-| Client E2E test | Playwright feed retrieval/display test |
-| Load testing | JMeter staged tests |
-| x1 load | Completed |
-| x10 load | Completed |
-| x100 load | Completed |
-| x1000 load | Completed |
-| x10000/equivalent | 10,000-request stress stage completed |
-| Accessibility | Lighthouse |
-| Observability | OpenTelemetry Collector |
-| Distributed tracing | Jaeger + Zipkin |
-| Metrics | Prometheus + application metrics |
-| GitHub repository | GitHub feature-branch workflow |
-| README | This document |
-
----
-
-# Video Demonstration Evidence
-
-The Assessment 3 video should demonstrate the actual running implementation rather than relying solely on this README.
-
-The required demonstration should include:
-
-- Student ID
-- Face
-- Voice
-- GitHub repository homepage
-- Git commit history
-- Running application
-- Operational dashboard
-- RSS Client
-- Database-driven data
-- Operational alerts
-- Health check
-- Request metrics
-- Requests per feed
-- Requests per client
-- Playwright tests
-- JMeter results
-- Lighthouse results
-- OpenTelemetry observability
-- Jaeger
-- Prometheus
-- Explanation of data flow
-
-The required video duration is 3 to 8 minutes.
-
----
-
-# Submission Preparation
-
-Before submitting:
-
-```text
-[ ] Production build succeeds
-[ ] Playwright tests pass
-[ ] /health returns HTTP 200
-[ ] Application dashboard works
-[ ] RSS Client works
-[ ] Operational metrics work
-[ ] Observability evidence captured
-[ ] JMeter results captured
-[ ] Lighthouse evidence captured
-[ ] README updated
-[ ] GitHub repository updated
-[ ] feature/assessment-3 merged to main
-[ ] main branch clean
-[ ] node_modules excluded
-[ ] generated test reports excluded
-[ ] local database excluded where appropriate
-[ ] no credentials or secrets committed
-[ ] submission ZIP created
-[ ] GitHub repository link included
-[ ] 3–8 minute video completed
-[ ] Student ID, face and voice shown in video
-[ ] Minimum five references included
-[ ] La Trobe AI acknowledgement completed
-```
-
----
-
-# References
+## References
 
 Apache Software Foundation. (n.d.). *Apache JMeter user manual*. https://jmeter.apache.org/usermanual/
 
@@ -2018,65 +1206,39 @@ Microsoft. (n.d.). *Playwright documentation*. https://playwright.dev/docs/intro
 
 OpenTelemetry Authors. (n.d.). *OpenTelemetry Collector*. https://opentelemetry.io/docs/collector/
 
-Prisma Data, Inc. (n.d.). *SQLite database connector*. Prisma documentation. https://www.prisma.io/docs/orm/overview/databases/sqlite
+Prisma Data, Inc. (n.d.). *SQLite*. Prisma documentation. https://www.prisma.io/docs/orm/overview/databases/sqlite
 
 Vercel. (n.d.). *Route Handlers*. Next.js documentation. https://nextjs.org/docs/app/getting-started/route-handlers
 
 ---
 
-# AI Acknowledgement
+## AI Acknowledgement
 
-Generative AI was used as an authorised development support tool during this assessment.
+Generative AI was used as an authorised development-support tool during this assessment.
 
 AI assistance was used for activities including:
 
-- Explaining cloud application concepts
+- Technical concept explanation
 - Implementation guidance
-- Code review
 - Troubleshooting
-- Test planning
+- Code review
+- Testing strategy
 - Interpretation of test results
 - Architecture discussion
 - Documentation assistance
-- Review against the assessment requirements and rubric
+- Review against the assessment brief and rubric
 
-All generated suggestions were critically reviewed and validated by the student.
+All generated suggestions were reviewed and validated by the student.
 
-Application functionality, Git history, test execution, screenshots, Lighthouse scores, JMeter measurements and observability results documented in this project are based on work actually performed and verified during development.
+Application functionality, Git history, test executions, screenshots, Lighthouse scores, JMeter measurements and observability results documented for this project are based on actual work performed during development.
 
-No test evidence, execution result, screenshot or deployment outcome has intentionally been fabricated.
-
-This README acknowledgement does not replace the separate La Trobe University AI acknowledgement required through the assessment submission process.
+The separate La Trobe University AI acknowledgement required through Moodle must also be completed.
 
 ---
 
-# Academic Integrity
-
-The project has been developed with permitted use of generative AI under the Assessment 3 Full AI conditions.
-
-The student remains responsible for:
-
-- Understanding the submitted implementation
-- Reviewing generated material
-- Validating application behaviour
-- Explaining architecture decisions
-- Explaining source code
-- Explaining testing methodology
-- Explaining performance results
-- Explaining limitations
-- Defending technical decisions during the Assessment 4 live presentation
-
----
-
-# Author
+## Author
 
 **Joseph Mondejar**  
-**Student ID:** 22687842  
+**Student ID: 22687842**  
 **CSE5006 Cloud-Based Web Application**  
 **La Trobe University**
-
-GitHub:
-
-```text
-https://github.com/josephtipo/rss-lms-frontend
-```
