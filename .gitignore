@@ -48,3 +48,11 @@ dev.db-journal
 
 # Generated Prisma Client
 /lib/generated/prisma/
+
+# Playwright generated reports
+playwright-report/
+test-results/
+
+# JMeter generated results
+jmeter.log
+performance/results/

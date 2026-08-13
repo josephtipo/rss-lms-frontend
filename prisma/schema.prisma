@@ -24,11 +24,30 @@ model Feed {
   link        String
   imageUrl    String?
   category    String?
+  status      String   @default("ACTIVE")
   publishedAt DateTime @default(now())
 
   authorId Int
   author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
+  requestLogs RequestLog[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model RequestLog {
+  id         Int      @id @default(autoincrement())
+  clientId   String
+  endpoint   String
+  method     String
+  statusCode Int
+  feedId     Int?
+  createdAt  DateTime @default(now())
+
+  feed Feed? @relation(fields: [feedId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([feedId])
+  @@index([createdAt])
 }
