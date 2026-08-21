@@ -56,3 +56,4 @@ test-results/
 # JMeter generated results
 jmeter.log
 performance/results/
+*.tar.gz
